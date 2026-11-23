@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bollette di casa</title>
+<meta name="theme-color" content="#141210">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bollette">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--bg:light-dark(#e7e4df,#171513);--panel:light-dark(#fff,#211e1b);--ink:light-dark(#141210,#eeeae4);
+--mut:light-dark(#5e5852,#a8a097);--rule:light-dark(#cfc9c1,#3a3530);--soft:light-dark(#f3f1ed,#1c1917);
+--brick:light-dark(#c8371e,#e8634a);--brickbg:light-dark(#f7e3dd,#3a1f19);--warn:light-dark(#8a5a00,#e0b050);--warnbg:light-dark(#fbf0d6,#3a2f14)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Schibsted Grotesk",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+h2{font-size:22px;margin:0 0 12px;line-height:1.2}
+.mut{color:var(--mut)}.sm{font-size:14px}
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:20px}
+.due{text-align:right}.due .lab{font-size:14px;color:var(--mut)}
+.due .big{font-size:clamp(36px,6vw,52px);font-weight:700;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums}
+.big.neg{color:var(--brick)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-top:16px;align-items:center}
+nav a{padding:10px 14px;border-radius:6px;color:var(--ink);text-decoration:none;font-weight:500;min-height:44px;display:inline-flex;align-items:center}
+nav a[aria-current]{background:var(--ink);color:var(--bg)}
+button{font:inherit;font-weight:500;min-height:44px;padding:0 16px;border-radius:6px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+button.pri{background:var(--brick);border-color:var(--brick);color:#fff}
+button.ghost{border-color:transparent;background:none;text-decoration:underline;padding:0 8px}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--brick);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:clamp(16px,2.5vw,28px);margin-bottom:24px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.sp{flex:1}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:500;color:var(--mut);font-size:14px;border-bottom:2px solid var(--ink);padding:8px 10px}
+td{border-bottom:1px solid var(--rule);padding:10px;vertical-align:top}
+.num{text-align:right;white-space:nowrap}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
+.tag{display:inline-block;font-size:13px;padding:1px 8px;border-radius:99px;border:1px solid var(--rule);white-space:nowrap}
+.tag.due{border-color:var(--brick);color:var(--brick)}
+.tag.est{border-color:var(--warn);color:var(--warn);background:var(--warnbg)}
+.neg{color:var(--brick)}
+.grid{overflow-x:auto;padding-bottom:6px}
+.grid table{width:auto;border-collapse:separate;border-spacing:3px}
+.grid th,.grid td{border:0;padding:0}
+.grid th.cat{position:sticky;left:0;background:var(--panel);text-align:left;padding-right:12px;color:var(--ink);font-size:15px;white-space:nowrap;z-index:1}
+.grid .mh{font-size:12px;color:var(--mut);text-align:center;width:24px;font-weight:400}
+.grid .yh{position:relative;height:18px}.grid .yh span{position:absolute;left:0;top:0;font-weight:700;color:var(--ink)}
+.c{width:24px;height:26px;border-radius:3px;display:block;position:relative}
+.c.p{background:var(--ink)}.c.d{background:var(--brick)}
+.c.e::after{content:"";position:absolute;right:3px;top:3px;width:6px;height:6px;border-radius:50%;background:#e8b84a}
+.c.m{background:repeating-linear-gradient(135deg,var(--brick) 0 2px,transparent 2px 6px);outline:1.5px solid var(--brick);outline-offset:-1.5px}
+.c.n{outline:1.5px dashed var(--rule);outline-offset:-1.5px}.c.x{background:none}
+button.cb{all:unset;cursor:pointer;display:block}button.cb:focus-visible{outline:2px solid var(--brick)}
+.yrow{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:14px}.yrow>b{font-weight:500;width:90px}
+.ycell{display:inline-flex;flex-direction:column;align-items:center;font-size:12px;color:var(--mut)}.ycell .c{width:44px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--mut);margin-top:12px}
+.legend span{display:inline-flex;gap:6px;align-items:center}.legend .c{width:16px;height:16px}
+.holes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:20px}
+.hole{border-left:4px solid var(--brick);padding:6px 12px;background:var(--brickbg);border-radius:0 6px 6px 0}
+.hole.ok{border-color:var(--ink);background:var(--soft)}.hole.w{border-color:var(--warn);background:var(--warnbg)}
+.hole b{display:block}
+dialog{border:0;border-radius:10px;padding:0;width:min(640px,96vw);background:var(--panel);color:var(--ink);box-shadow:0 20px 60px #0005}
+dialog::backdrop{background:#0007}
+.dh{padding:18px 22px;border-bottom:2px solid var(--ink);display:flex;align-items:center}
+.db{padding:18px 22px;max-height:70vh;overflow:auto}
+.df{padding:14px 22px;border-top:1px solid var(--rule);display:flex;gap:10px;flex-wrap:wrap}
+label{display:block;font-size:14px;color:var(--mut);margin-bottom:4px}
+input,select,textarea{font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);width:100%}
+input[type=checkbox],input[type=radio]{width:20px;min-height:20px;accent-color:var(--brick);flex:none}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}.f1{margin-bottom:14px}
+.seg{display:flex;border:1px solid var(--ink);border-radius:6px;overflow:hidden}
+.seg label{flex:1;margin:0;text-align:center;padding:10px 6px;cursor:pointer;color:var(--ink);font-size:15px;min-height:44px}
+.seg input{position:absolute;opacity:0;width:1px}
+.seg label:has(input:checked){background:var(--ink);color:var(--bg)}
+.seg label:has(input:focus-visible){outline:3px solid var(--brick);outline-offset:-3px}
+.chk{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0}
+.calc{background:var(--soft);border-radius:8px;padding:14px 16px;margin-top:6px}
+.calc .r{display:flex;justify-content:space-between;gap:10px}
+.calc .t{font-size:22px;font-weight:700;border-top:1px solid var(--rule);margin-top:8px;padding-top:8px}
+.warnbox{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:14px;margin-bottom:14px}
+.lines td{padding:4px}.lines input,.lines select{min-height:40px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;display:none;gap:12px;align-items:center;z-index:9;max-width:92vw}
+.toast button{min-height:36px;background:none;color:var(--bg);border-color:var(--bg)}
+.banner{background:var(--brickbg);border:1px solid var(--brick);padding:10px 14px;border-radius:6px;margin-bottom:16px}
+.bar{height:10px;background:var(--ink);border-radius:2px}
+details{border-bottom:1px solid var(--rule);padding:12px 0}
+summary{cursor:pointer;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;list-style:none}
+summary::-webkit-details-marker{display:none}summary b{font-size:18px}
+.scroll{overflow-x:auto}
+.login{max-width:420px;margin:12vh auto 0}
+.who{font-size:14px;color:var(--mut);margin-left:auto}
+[hidden]{display:none!important}
+@media(max-width:600px){.top{grid-template-columns:1fr}.due{text-align:left}.due .row{justify-content:flex-start!important}.f2{grid-template-columns:1fr}.who{width:100%;margin:6px 0 0}
+table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--rule)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--mut);font-size:13px}.stack td:empty{display:none}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ACCESSO -->
+<section id="scrLogin" class="band" hidden><div class="panel login">
+  <h1 style="font-size:36px">Bollette di casa</h1>
+  <p class="mut">Accedi con l'email e la password create su Supabase.</p>
+  <form id="fLogin"><div class="f1"><label for="lEmail">Email</label><input id="lEmail" type="email" autocomplete="username" required></div>
+  <div class="f1"><label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password" required></div>
+  <button class="pri" style="width:100%">Entra</button><p class="neg sm" id="lErr"></p></form>
+</div></section>
+
+<section id="scrMsg" class="band" hidden><div class="panel login"><h2 id="msgT"></h2><p id="msgP"></p><button id="msgOut" hidden>Esci</button></div></section>
+
+<!-- APP -->
+<div id="scrApp" hidden>
+<div class="band"><div class="wrap">
+  <div class="banner" id="banner" hidden></div>
+  <header class="top">
+    <div><h1>Bollette di casa</h1><div class="mut" id="sub"></div></div>
+    <div class="due"><div class="lab" id="dueLab">Da versare</div><div class="big" id="dueBig">—</div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px"><button id="bNew" class="ed">+ Bolletta</button><button class="pri ed" id="bPay">Registra bonifico</button></div></div>
+  </header>
+  <nav id="nav"><a href="#panoramica">Panoramica</a><a href="#bollette">Bollette</a><a href="#bonifici">Bonifici</a><a href="#riepilogo">Riepilogo</a><a href="#impostazioni" class="ed">Impostazioni</a>
+    <span class="who"><span id="who"></span> · <button class="ghost" id="bOut" style="min-height:32px">Esci</button></span></nav>
+</div></div>
+
+<main class="band" style="padding-top:0"><div class="wrap">
+<section id="v-panoramica">
+  <div class="panel"><h2>Mesi coperti</h2><div class="grid" id="grid"></div><div id="yearly"></div>
+    <div class="legend"><span><i class="c p"></i>versato</span><span><i class="c d"></i>registrata, da versare</span><span><i class="c m"></i>scoperto</span><span><i class="c n"></i>mese in corso</span><span><i class="c p e"></i>importo medio da verificare</span></div>
+    <div class="holes" id="holes"></div></div>
+  <div class="panel"><h2>Nel prossimo bonifico</h2><div id="unpaid"></div></div>
+</section>
+<section id="v-bollette" hidden>
+  <div class="panel">
+    <div class="row" style="margin-bottom:14px"><input id="q" placeholder="Cerca (es. Iren 2025)" style="max-width:240px" aria-label="Cerca"><select id="fCat" style="max-width:190px" aria-label="Utenza"></select><select id="fYr" style="max-width:130px" aria-label="Anno"></select><select id="fSt" style="max-width:190px" aria-label="Stato"><option value="">Tutte</option><option value="d">Da versare</option><option value="p">Versate</option><option value="e">Da verificare (medie)</option></select><span class="sp"></span><span class="mut sm" id="cnt"></span></div>
+    <table class="stack"><thead><tr><th>Periodo</th><th>Voce</th><th class="num">Importo</th><th>Ripartizione</th><th class="num">Tua parte</th><th>Versata</th></tr></thead><tbody id="tb"></tbody></table>
+  </div>
+</section>
+<section id="v-bonifici" hidden><div class="panel"><h2>Bonifici fatti</h2><div id="bon"></div></div></section>
+<section id="v-riepilogo" hidden><div class="panel"><h2>La tua parte per anno</h2><p class="mut sm" style="margin-top:0">Per anno di competenza della bolletta (le spese spot per anno della data). Le cifre negative sono spese anticipate da te e scalate.</p><div class="scroll" id="riep"></div></div></section>
+<section id="v-impostazioni" hidden>
+  <div class="panel"><h2>Nomi</h2><div class="f2"><div><label for="sMe">Tu</label><input id="sMe"></div><div><label for="sHe">L'intestatario delle utenze</label><input id="sHe"></div></div></div>
+  <div class="panel"><h2>Cellulari in bolletta TIM</h2><p class="mut sm" style="margin-top:0">Proposti in ogni nuova bolletta TIM: il fisso si divide a metà, ogni cellulare lo paga chi lo usa.</p>
+    <table class="lines"><thead><tr><th>Numero / nome</th><th>Di chi</th><th class="num">Costo abituale €</th><th></th></tr></thead><tbody id="sLines"></tbody></table>
+    <div class="row" style="margin-top:10px"><button id="sAddLine">+ Cellulare</button></div></div>
+  <div class="panel"><h2>Utenze</h2><p class="mut sm" style="margin-top:0">«Dal» indica da quando controllare i mesi scoperti; «fino a» serve per un'utenza disdetta.</p>
+    <div class="scroll"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Dal</th><th>Fino a</th></tr></thead><tbody id="sCats"></tbody></table></div>
+    <div class="row" style="margin-top:10px"><button id="sAddCat">+ Utenza</button></div></div>
+  <div class="row"><button class="pri" id="sSave">Salva impostazioni</button><button id="sCsv">Copia tutto in CSV</button></div>
+  <textarea id="csvOut" rows="6" style="margin-top:12px" hidden readonly aria-label="CSV"></textarea>
+</section>
+</div></main>
+</div>
+
+<dialog id="dB"><form method="dialog" id="fB">
+  <div class="dh"><h2 style="margin:0" id="dBt">Nuova bolletta</h2><span class="sp"></span><button value="x" class="ghost">Chiudi</button></div>
+  <div class="db">
+    <div class="warnbox" id="iDup" hidden></div>
+    <div class="f2"><div><label for="iCat">Utenza</label><select id="iCat"></select></div><div><label for="iForn">Fornitore / descrizione</label><input id="iForn"></div></div>
+    <div class="f2" id="perM"><div><label for="iMm">Mese</label><select id="iMm"></select></div><div><label for="iMy">Anno</label><select id="iMy"></select></div></div>
+    <div class="f1" id="perY" hidden><label for="iY">Anno di competenza</label><select id="iY"></select></div>
+    <div class="f1" id="perS" hidden><label for="iData">Data della spesa</label><input type="date" id="iData"></div>
+    <div class="f1"><label>Chi ha pagato il fornitore</label><div class="seg"><label><input type="radio" name="chi" value="suocero"><span class="lHe">Suocero</span></label><label><input type="radio" name="chi" value="io"><span class="lMe">Io</span></label></div></div>
+    <div class="f1"><label>Come si divide</label><div class="seg"><label><input type="radio" name="reg" value="meta">A metà</label><label><input type="radio" name="reg" value="tim">Fisso + cellulari</label><label><input type="radio" name="reg" value="quota">Quota a mano</label></div></div>
+    <div id="boxTot" class="f1"><label for="iTot">Importo totale €</label><input id="iTot" inputmode="decimal"></div>
+    <div id="boxQ" class="f1" hidden><label for="iQ">La tua parte della spesa €</label><input id="iQ" inputmode="decimal"></div>
+    <div id="boxTim" hidden class="f1">
+      <label for="iFix">Parte fissa (linea casa, modem…) €</label><input id="iFix" inputmode="decimal" style="margin-bottom:10px">
+      <table class="lines"><thead><tr><th>Cellulare</th><th>Di chi</th><th class="num">€</th><th></th></tr></thead><tbody id="iLines"></tbody></table>
+      <button type="button" id="iAddLine" style="margin-top:8px">+ Cellulare</button>
+    </div>
+    <div class="calc" id="calc"></div>
+    <div class="f2" style="margin-top:14px"><div><label for="iPag">Versata il (vuoto = da versare)</label><input type="date" id="iPag"></div><div><label for="iNote">Note</label><input id="iNote"></div></div>
+    <label class="chk"><input type="checkbox" id="iEst"> Importo medio da verificare</label>
+  </div>
+  <div class="df"><button type="button" class="pri" id="iSave">Salva</button><button type="button" id="iNext">Salva e mese dopo</button><button type="button" id="iDup2" hidden>Duplica</button><span class="sp"></span><button type="button" id="iDel" class="ghost neg" hidden>Elimina</button></div>
+</form></dialog>
+
+<dialog id="dP"><form method="dialog">
+  <div class="dh"><h2 style="margin:0">Registra bonifico</h2><span class="sp"></span><button value="x" class="ghost">Chiudi</button></div>
+  <div class="db"><div class="row sm"><span class="mut">Spunta le voci che saldi con questo bonifico.</span><span class="sp"></span><button type="button" class="ghost" id="pAll">Tutte</button><button type="button" class="ghost" id="pNone">Nessuna</button></div><div id="pList"></div>
+    <div class="f2" style="margin-top:14px"><div><label for="pDate">Data del bonifico</label><input type="date" id="pDate"></div><div><label>Importo da bonificare</label><div style="font-size:28px;font-weight:700" id="pTot">—</div></div></div>
+    <label for="pCaus">Causale</label><textarea id="pCaus" rows="3" readonly></textarea></div>
+  <div class="df"><button type="button" class="pri" id="pOk">Segna come versate</button><button type="button" id="pCopy">Copia causale</button><button value="x">Annulla</button></div>
+</form></dialog>
+
+<div class="toast" id="toast"><span id="tMsg"></span><button id="tUndo" hidden>Annulla</button></div>
+
+<script>
+{
+const MESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+const DEFCFG={me:'Io',he:'Suocero',linee:[{n:'Mio cellulare 1',chi:'io',imp:0},{n:'Mio cellulare 2',chi:'io',imp:0}],
+ cats:[{id:'luce',nome:'Luce e gas',freq:'mese',dal:'2022-10',al:'',forn:'Iren'},{id:'tim',nome:'TIM',freq:'mese',dal:'2022-10',al:'',forn:'Tim'},
+ {id:'dazn',nome:'DAZN',freq:'mese',dal:'2022-10',al:'',forn:'Dazn'},{id:'nowtv',nome:'Now TV',freq:'mese',dal:'2024-09',al:'',forn:'Now TV',chi:'io'},
+ {id:'acqua',nome:'Acqua',freq:'anno',dal:'2019',al:'',forn:'Acqua'},{id:'altro',nome:'Spese spot',freq:'spot',dal:'',al:'',forn:''}]};
+const COLS=['cat','forn','periodo','data','tot','chi','reg','quota','fisso','linee','pagato','note','stima'];
+const $=s=>document.getElementById(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=x=>Math.sign(x)*Math.round(Number((Math.abs(x)*100).toFixed(6)))/100;
+const eur=x=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(x||0);
+const numIn=s=>{s=String(s??'').trim().replace(/\s|€/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const v=parseFloat(s);return isNaN(v)?0:v};
+const fmtIn=v=>v==null||v===''?'':String(v).replace('.',',');
+const now=new Date(),CUR=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),TODAY=new Date(now-now.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const ymAdd=(ym,n)=>{let[y,m]=ym.split('-').map(Number);m+=n-1;y+=Math.floor(m/12);m=((m%12)+12)%12;return y+'-'+String(m+1).padStart(2,'0')};
+const ymL=ym=>MESI[+ym.slice(5)-1]+' '+ym.slice(0,4);
+const dL=d=>{if(!d)return'';const[y,m,g]=d.split('-');return +g+' '+MESI[+m-1]+' '+y};
+let S={bills:[],cfg:structuredClone(DEFCFG)},sb=null,user=null,role=null,editId=null,undo=null;
+const ED=()=>role==='editor';
+const cat=id=>S.cfg.cats.find(c=>c.id===id)||{id,nome:id,freq:'spot'};
+const kind=b=>!b.periodo?'spot':b.periodo.length===4?'anno':'mese';
+const per=b=>kind(b)==='mese'?ymL(b.periodo):kind(b)==='anno'?'anno '+b.periodo:dL(b.data)||'—';
+const sortKey=b=>b.periodo?(b.periodo.length===4?b.periodo+'-12':b.periodo):(b.data||'').slice(0,7);
+const yearOf=b=>(b.periodo||b.data||'').slice(0,4);
+const share=b=>b.reg==='tim'?r2((+b.fisso||0)/2+(b.linee||[]).filter(l=>l.chi==='io').reduce((s,l)=>s+(+l.imp||0),0)):b.reg==='quota'?(+b.quota||0):r2(b.tot/2);
+const net=b=>b.chi==='io'?-r2(b.tot-share(b)):share(b);
+const regL=b=>b.reg==='tim'?'fisso ½ + cellulari':b.reg==='quota'?'quota a mano':'a metà';
+
+let tT;function toast(m,u){$('tMsg').textContent=m;$('tUndo').hidden=!u;undo=u||null;$('toast').style.display='flex';clearTimeout(tT);tT=setTimeout(()=>$('toast').style.display='none',u?7000:3500)}
+$('tUndo').onclick=()=>{undo&&undo();$('toast').style.display='none'};
+function banner(m){$('banner').textContent=m||'';$('banner').hidden=!m}
+function screen(id){['scrLogin','scrMsg','scrApp'].forEach(x=>$(x).hidden=x!==id)}
+function msg(t,p,out){$('msgT').textContent=t;$('msgP').textContent=p;$('msgOut').hidden=!out;screen('scrMsg')}
+
+/* ---------- dati (Supabase) ---------- */
+const clean=b=>{const o={};for(const k of COLS)o[k]=b[k]===undefined||b[k]===''?null:b[k];o.note=b.note||'';o.stima=!!b.stima;return o};
+const norm=r=>({...r,tot:+r.tot,quota:r.quota==null?null:+r.quota,fisso:r.fisso==null?null:+r.fisso,pagato:r.pagato||'',stima:!!r.stima,linee:r.linee||null});
+async function load(){const[a,c]=await Promise.all([sb.from('bollette').select('*').range(0,9999),sb.from('impostazioni').select('dati').eq('id',1).maybeSingle()]);
+  if(a.error){banner('Non riesco a leggere i dati: '+a.error.message);return}banner('');
+  S.bills=a.data.map(norm);if(c.data&&c.data.dati&&Object.keys(c.data.dati).length)S.cfg={...structuredClone(DEFCFG),...c.data.dati};render()}
+async function put(b){const row=clean(b);let r;
+  if(b.id)r=await sb.from('bollette').update(row).eq('id',b.id).select();else r=await sb.from('bollette').insert(row).select();
+  if(r.error){toast('Salvataggio non riuscito: '+r.error.message);return null}
+  const saved=norm(r.data[0]);const i=S.bills.findIndex(x=>x.id===saved.id);i<0?S.bills.push(saved):S.bills[i]=saved;render();return saved}
+async function del(id){const r=await sb.from('bollette').delete().eq('id',id);if(r.error){toast('Eliminazione non riuscita: '+r.error.message);return false}S.bills=S.bills.filter(b=>b.id!==id);render();return true}
+async function setPaid(ids,d){const r=await sb.from('bollette').update({pagato:d||null}).in('id',ids);if(r.error){toast('Errore: '+r.error.message);return false}
+  S.bills.forEach(b=>{if(ids.includes(b.id))b.pagato=d||''});render();return true}
+
+/* ---------- copertura ---------- */
+function coverage(){const out={};for(const c of S.cfg.cats){const m={};
+  for(const b of S.bills.filter(b=>b.cat===c.id&&b.periodo)){const k=b.periodo;const st=b.pagato?'p':'d';m[k]=(m[k]==='d'||st==='d')?'d':'p';if(b.stima)m[k+'e']=1}
+  out[c.id]=m}return out}
+function holes(c,m){if(!c.dal)return[];
+  if(c.freq==='anno'){const end=c.al?+c.al.slice(0,4):now.getFullYear()-1,miss=[];for(let y=+c.dal.slice(0,4);y<=end;y++)if(!m[y])miss.push([String(y),String(y)]);return miss}
+  const end=c.al&&c.al<CUR?c.al:ymAdd(CUR,-1);let ym=c.dal,runs=[],st=null;
+  while(ym<=end){if(!m[ym]){if(!st)st=ym}else if(st){runs.push([st,ymAdd(ym,-1)]);st=null}ym=ymAdd(ym,1)}if(st)runs.push([st,end]);return runs}
+const cellT={p:'versato',d:'da versare',m:'scoperto: clic per inserire',n:'in corso',x:''};
+function renderGrid(){const cov=coverage(),cats=S.cfg.cats.filter(c=>c.freq==='mese'&&c.dal);
+  const start=cats.reduce((a,c)=>c.dal<a?c.dal:a,CUR),cols=[];for(let ym=start;ym<=CUR;ym=ymAdd(ym,1))cols.push(ym);
+  let h='<table><thead><tr><th class="cat"></th>'+cols.map(ym=>'<th class="mh yh">'+(ym.endsWith('-01')||ym===start?'<span>'+ym.slice(0,4)+'</span>':'')+'</th>').join('')+'</tr><tr><th class="cat"></th>'+cols.map(ym=>'<th class="mh">'+MESI[+ym.slice(5)-1][0].toUpperCase()+'</th>').join('')+'</tr></thead><tbody>';
+  for(const c of cats){h+='<tr><th class="cat">'+esc(c.nome)+'</th>'+cols.map(ym=>{const s=cov[c.id][ym];let k='x';
+    if(ym>=c.dal&&(!c.al||ym<=c.al))k=s?s:(ym===CUR?'n':'m');if(k==='x')return'<td><i class="c x"></i></td>';
+    return'<td><button class="cb" data-c="'+esc(c.id)+'" data-p="'+ym+'" title="'+esc(c.nome+' · '+ymL(ym)+' · '+cellT[k])+'"><i class="c '+k+(cov[c.id][ym+'e']?' e':'')+'"></i></button></td>'}).join('')+'</tr>'}
+  $('grid').innerHTML=h+'</tbody></table>';const g=$('grid');g.scrollLeft=g.scrollWidth;
+  $('yearly').innerHTML=S.cfg.cats.filter(c=>c.freq==='anno'&&c.dal).map(c=>{let s='<div class="yrow"><b>'+esc(c.nome)+'</b><div class="row" style="gap:4px">';
+    for(let y=+c.dal.slice(0,4);y<=now.getFullYear();y++){const v=cov[c.id][y];const k=v?v:(y===now.getFullYear()?'n':'m');s+='<button class="cb ycell" data-c="'+esc(c.id)+'" data-p="'+y+'" title="'+esc(c.nome+' '+y+' · '+cellT[k])+'"><i class="c '+k+'"></i>'+y+'</button>'}
+    return s+'</div></div>'}).join('');
+  const est=S.bills.filter(b=>b.stima).length;
+  $('holes').innerHTML=S.cfg.cats.filter(c=>c.freq!=='spot'&&c.dal).map(c=>{const r=holes(c,cov[c.id]);
+    if(!r.length)return'<div class="hole ok"><b>'+esc(c.nome)+'</b><span class="sm mut">Tutto coperto</span></div>';
+    const n=c.freq==='anno'?r.length+(r.length>1?' anni scoperti':' anno scoperto'):(k=>k+(k>1?' mesi scoperti':' mese scoperto'))(r.reduce((s,[a,b])=>{let k=0;for(let y=a;y<=b;y=ymAdd(y,1))k++;return s+k},0));
+    return'<div class="hole"><b>'+esc(c.nome)+' · '+n+'</b><span class="sm">'+r.map(([a,b])=>c.freq==='anno'?a:(a===b?ymL(a):ymL(a)+' → '+ymL(b))).map(esc).join(', ')+'</span></div>'}).join('')
+    +(est?'<div class="hole w"><b>'+est+' voci con importo medio</b><span class="sm">Dallo storico cumulato. <a href="#bollette" id="goEst" style="color:inherit">Verificale</a></span></div>':'')}
+document.addEventListener('click',e=>{const cb=e.target.closest('button.cb');if(cb){e.preventDefault();const p=cb.dataset.p,c=cb.dataset.c;
+  const ex=S.bills.filter(b=>b.cat===c&&b.periodo===p);if(ex.length===1)openBill(ex[0].id);else if(ex.length>1){location.hash='bollette';$('fCat').value=c;$('q').value=p.length===4?p:ymL(p);render()}else if(ED())openBill(null,{cat:c,periodo:p});return}
+  if(e.target.id==='goEst'){$('fSt').value='e';$('fCat').value='';$('fYr').value='';$('q').value='';setTimeout(render)}
+  const tr=e.target.closest('tr.click');if(tr)openBill(tr.dataset.id)});
+
+/* ---------- viste ---------- */
+function rowHtml(b){const n=net(b);return'<tr class="click" data-id="'+esc(b.id)+'"><td>'+esc(per(b))+'</td><td><b>'+esc(b.forn||cat(b.cat).nome)+'</b>'+(b.stima?' <span class="tag est">media</span>':'')+(b.note?'<div class="sm mut">'+esc(b.note)+'</div>':'')+'</td><td class="num">'+eur(b.tot)+'</td><td class="sm">'+esc(regL(b))+(b.chi==='io'?'<div class="mut">pagata da '+esc(S.cfg.me)+'</div>':'')+'</td><td class="num'+(n<0?' neg':'')+'"><b>'+eur(n)+'</b></td><td>'+(b.pagato?esc(dL(b.pagato)):'<span class="tag due">da versare</span>')+'</td></tr>'}
+const sorted=()=>[...S.bills].sort((a,b)=>(b.pagato||'9999').localeCompare(a.pagato||'9999')||sortKey(b).localeCompare(sortKey(a))||(a.cat>b.cat?1:-1));
+const TH='<thead><tr><th>Periodo</th><th>Voce</th><th class="num">Importo</th><th>Ripartizione</th><th class="num">Tua parte</th><th>Versata</th></tr></thead>';
+function render(){
+  document.querySelectorAll('.ed').forEach(x=>x.hidden=!ED());
+  document.querySelectorAll('.lHe').forEach(x=>x.textContent=S.cfg.he);document.querySelectorAll('.lMe').forEach(x=>x.textContent=S.cfg.me);
+  const un=S.bills.filter(b=>!b.pagato).sort((a,b)=>sortKey(a).localeCompare(sortKey(b))),tot=r2(un.reduce((s,b)=>s+net(b),0));
+  const pays=[...new Set(S.bills.filter(b=>b.pagato).map(b=>b.pagato))].sort().reverse();
+  $('sub').textContent='Utenze condivise tra '+S.cfg.me+' e '+S.cfg.he+(pays[0]?' · ultimo bonifico il '+dL(pays[0]):'');
+  if(!un.length){$('dueLab').textContent='Da versare a '+S.cfg.he;$('dueBig').textContent='In pari';$('dueBig').className='big'}
+  else{$('dueLab').textContent=(tot>=0?'Da versare a '+S.cfg.he:S.cfg.he+' ti deve')+' ('+un.length+(un.length===1?' voce)':' voci)');$('dueBig').textContent=eur(Math.abs(tot));$('dueBig').className='big'+(tot<0?' neg':'')}
+  renderGrid();
+  $('unpaid').innerHTML=un.length?'<table class="stack">'+TH+'<tbody>'+un.map(rowHtml).join('')+'<tr><td></td><td><b>Totale</b></td><td></td><td></td><td class="num"><b>'+eur(tot)+'</b></td><td></td></tr></tbody></table>':'<p class="mut">Nessuna bolletta in attesa.'+(ED()?' Quando ne arriva una, aggiungila con «+ Bolletta» o toccando il mese scoperto nella griglia.':'')+'</p>';
+  const yrs=[...new Set(S.bills.map(yearOf).filter(Boolean))].sort().reverse();const fy=$('fYr').value;
+  $('fYr').innerHTML='<option value="">Tutti gli anni</option>'+yrs.map(y=>'<option'+(y===fy?' selected':'')+'>'+y+'</option>').join('');
+  const fc=$('fCat').value;$('fCat').innerHTML='<option value="">Tutte le utenze</option>'+S.cfg.cats.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===fc?' selected':'')+'>'+esc(c.nome)+'</option>').join('');
+  const q=$('q').value.toLowerCase().trim(),fs=$('fSt').value;
+  const list=sorted().filter(b=>(!fc||b.cat===fc)&&(!fy||yearOf(b)===fy)&&(!fs||(fs==='p'?b.pagato:fs==='d'?!b.pagato:b.stima))&&(!q||q.split(/\s+/).every(w=>((b.forn||'')+' '+per(b)+' '+cat(b.cat).nome+' '+(b.note||'')+' '+(b.periodo||'')).toLowerCase().includes(w))));
+  $('cnt').textContent=list.length+' voci · tua parte '+eur(list.reduce((s,b)=>s+net(b),0));
+  $('tb').innerHTML=list.length?list.map(rowHtml).join(''):'<tr><td colspan="6" class="mut">Nessuna voce trovata.</td></tr>';
+  $('bon').innerHTML=pays.length?pays.map(d=>{const bs=S.bills.filter(b=>b.pagato===d).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));const t=bs.reduce((s,b)=>s+net(b),0);
+    return'<details><summary><b>'+esc(dL(d))+'</b><span class="mut sm">'+bs.length+' voci</span><span class="sp"></span><b>'+eur(t)+'</b></summary><table class="stack" style="margin-top:8px">'+TH+'<tbody>'+bs.map(rowHtml).join('')+'</tbody></table></details>'}).join(''):'<p class="mut">Ancora nessun bonifico registrato.</p>';
+  const cs=S.cfg.cats,rows=yrs.map(y=>{const v=cs.map(c=>S.bills.filter(b=>yearOf(b)===y&&b.cat===c.id).reduce((s,b)=>s+net(b),0));return{y,v,t:v.reduce((a,b)=>a+b,0)}}),mx=Math.max(1,...rows.map(r=>r.t));
+  $('riep').innerHTML=rows.length?'<table><thead><tr><th>Anno</th>'+cs.map(c=>'<th class="num">'+esc(c.nome)+'</th>').join('')+'<th class="num">Totale</th><th style="width:20%"></th></tr></thead><tbody>'+rows.map(r=>'<tr><td><b>'+r.y+'</b></td>'+r.v.map(x=>'<td class="num'+(x<0?' neg':'')+'">'+(x?eur(x):'–')+'</td>').join('')+'<td class="num"><b>'+eur(r.t)+'</b></td><td><div class="bar" style="width:'+Math.max(0,r.t/mx*100)+'%"></div></td></tr>').join('')+'</tbody></table>':'<p class="mut">Nessun dato.</p>';
+  renderSettings()}
+['q','fCat','fSt','fYr'].forEach(i=>$(i).addEventListener('input',render));
+
+const VIEWS=['panoramica','bollette','bonifici','riepilogo','impostazioni'];
+function route(){let v=location.hash.slice(1);if(!VIEWS.includes(v)||(v==='impostazioni'&&!ED()))v='panoramica';
+  VIEWS.forEach(x=>$('v-'+x).hidden=x!==v);document.querySelectorAll('#nav a').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+v));if(v==='panoramica')renderGrid()}
+addEventListener('hashchange',route);
+
+/* ---------- scheda bolletta ---------- */
+const opts=(a,sel)=>a.map(([v,l])=>'<option value="'+esc(v)+'"'+(String(v)===String(sel)?' selected':'')+'>'+esc(l)+'</option>').join('');
+const YRS=[];for(let y=now.getFullYear()+1;y>=2015;y--)YRS.push([y,y]);
+const MO=MESI.map((m,i)=>[String(i+1).padStart(2,'0'),m]);
+const radio=n=>document.querySelector('#fB input[name='+n+']:checked')?.value;
+const setRadio=(n,v)=>{const r=document.querySelector('#fB input[name='+n+'][value="'+v+'"]');if(r)r.checked=true};
+const lineRow=l=>'<tr><td><input class="lN" value="'+esc(l.n)+'" aria-label="Cellulare"></td><td><select class="lC" aria-label="Di chi">'+opts([['io',S.cfg.me],['suocero',S.cfg.he]],l.chi)+'</select></td><td><input class="lI" inputmode="decimal" value="'+esc(l.imp?fmtIn(l.imp):'')+'" aria-label="Importo" style="text-align:right"></td><td><button type="button" class="ghost lX" aria-label="Togli">✕</button></td></tr>';
+const readLines=tb=>[...$(tb).rows].map(r=>({n:r.querySelector('.lN').value.trim(),chi:r.querySelector('.lC').value,imp:numIn(r.querySelector('.lI').value)})).filter(l=>l.n||l.imp);
+function readForm(){const c=cat($('iCat').value),reg=radio('reg');
+  const b={id:editId||undefined,cat:c.id,forn:$('iForn').value.trim()||c.nome,chi:radio('chi'),reg,note:$('iNote').value.trim(),pagato:$('iPag').value||'',stima:$('iEst').checked,periodo:null,data:null,quota:null,fisso:null,linee:null};
+  if(c.freq==='mese')b.periodo=$('iMy').value+'-'+$('iMm').value;else if(c.freq==='anno')b.periodo=$('iY').value;else b.data=$('iData').value||TODAY;
+  if(reg==='tim'){b.fisso=numIn($('iFix').value);b.linee=readLines('iLines');b.tot=r2(b.fisso+b.linee.reduce((s,l)=>s+l.imp,0))}else b.tot=numIn($('iTot').value);
+  if(reg==='quota')b.quota=numIn($('iQ').value);return b}
+function calc(){const reg=radio('reg');$('boxTim').hidden=reg!=='tim';$('boxTot').hidden=reg==='tim';$('boxQ').hidden=reg!=='quota';
+  const c=cat($('iCat').value);$('perM').hidden=c.freq!=='mese';$('perY').hidden=c.freq!=='anno';$('perS').hidden=c.freq!=='spot';
+  const b=readForm(),s=share(b),n=net(b),he=esc(S.cfg.he);
+  let h='<div class="r"><span>Totale bolletta</span><b>'+eur(b.tot)+'</b></div>';
+  if(reg==='tim'){const mine=b.linee.filter(l=>l.chi==='io').reduce((x,l)=>x+l.imp,0),his=b.linee.filter(l=>l.chi!=='io').reduce((x,l)=>x+l.imp,0);
+    h+='<div class="r sm"><span>Metà del fisso</span><span>'+eur(r2(b.fisso/2))+'</span></div><div class="r sm"><span>Tuoi cellulari</span><span>'+eur(mine)+'</span></div><div class="r sm mut"><span>Cellulari di '+he+'</span><span>'+eur(his)+'</span></div>'}
+  h+='<div class="r"><span>La tua parte della spesa</span><b>'+eur(s)+'</b></div><div class="r t"><span>'+(n>=0?'Da versare a '+he:he+' ti deve (si scala)')+'</span><span class="'+(n<0?'neg':'')+'">'+eur(Math.abs(n))+'</span></div>';
+  $('calc').innerHTML=h;
+  const dup=b.periodo&&S.bills.filter(x=>x.cat===b.cat&&x.periodo===b.periodo&&x.id!==editId);
+  $('iDup').hidden=!(dup&&dup.length);if(dup&&dup.length)$('iDup').textContent='Attenzione: per '+per(b)+' esiste già '+(dup.length>1?dup.length+' voci':'una voce')+' di '+c.nome+' ('+dup.map(x=>eur(x.tot)).join(', ')+'). Va bene solo se è un conguaglio o una seconda bolletta.';
+  $('iNext').hidden=!!editId||c.freq!=='mese'}
+const lastOf=cid=>S.bills.filter(b=>b.cat===cid&&b.periodo).sort((a,b)=>b.periodo.localeCompare(a.periodo))[0];
+function fill(b,pre){const c=cat($('iCat').value),last=lastOf(c.id),src=b||last;
+  $('iForn').value=b?b.forn:(last?.forn||c.forn||'');
+  let p=b?.periodo||pre?.periodo;if(!p&&c.freq==='mese')p=last?ymAdd(last.periodo,1):ymAdd(CUR,-1);if(!p&&c.freq==='anno')p=last?String(+last.periodo+1):String(now.getFullYear()-1);
+  if(c.freq==='mese'){$('iMm').innerHTML=opts(MO,p.slice(5));$('iMy').innerHTML=opts(YRS,p.slice(0,4))}
+  $('iY').innerHTML=opts(YRS,c.freq==='anno'?p:now.getFullYear()-1);$('iData').value=b?.data||TODAY;
+  setRadio('chi',b?b.chi:(last?.chi||c.chi||'suocero'));setRadio('reg',b?b.reg:(last&&!last.stima?last.reg:(c.id==='tim'?'tim':'meta')));
+  const t=b||(last&&!last.stima&&c.freq==='mese'?last:null);
+  $('iTot').value=t?fmtIn(t.tot):'';$('iQ').value=t&&t.quota!=null?fmtIn(t.quota):'';$('iFix').value=t&&t.fisso!=null?fmtIn(t.fisso):'';
+  $('iLines').innerHTML=((t&&t.reg==='tim'&&t.linee)||S.cfg.linee).map(lineRow).join('');
+  $('iNote').value=b?b.note||'':'';$('iPag').value=b?b.pagato||'':'';$('iEst').checked=!!b?.stima;$('iEst').parentElement.hidden=!b?.stima;calc()}
+function openBill(id,pre){if(id&&!ED()){const b=S.bills.find(x=>x.id===id);if(b)toast(per(b)+' · '+(b.forn||'')+': '+eur(b.tot)+', tua parte '+eur(net(b)));return}
+  const b=id?S.bills.find(x=>x.id===id):null;editId=b?b.id:null;$('dBt').textContent=b?'Modifica voce':'Nuova bolletta';
+  $('iDel').hidden=!b;$('iDup2').hidden=!b;$('iDel').textContent='Elimina';delete $('iDel').dataset.c;
+  $('iCat').innerHTML=opts(S.cfg.cats.map(c=>[c.id,c.nome]),b?b.cat:(pre?.cat||'luce'));fill(b,pre);$('dB').showModal()}
+$('iCat').addEventListener('change',()=>fill(null));
+$('fB').addEventListener('input',e=>{if(e.target.id==='iCat')return;
+  if(['iTot','iQ','iFix'].includes(e.target.id)||e.target.classList.contains('lI')){
+    /* voce media dello storico divisa "a metà" ma salvata come quota per far quadrare i centesimi: correggendo l'importo torna "a metà" */
+    const o=editId&&S.bills.find(x=>x.id===editId);
+    if(e.target.id==='iTot'&&$('iEst').checked&&o&&o.reg==='quota'&&o.cat!=='tim'&&Math.abs(o.quota-o.tot/2)<=0.05)setRadio('reg','meta');
+    $('iEst').checked=false}
+  calc()});
+$('iAddLine').onclick=()=>{$('iLines').insertAdjacentHTML('beforeend',lineRow({n:'',chi:'suocero',imp:0}));calc()};
+$('iLines').addEventListener('click',e=>{if(e.target.closest('.lX')){e.target.closest('tr').remove();calc()}});
+async function save(){const b=readForm();if(!(b.tot>0)){(b.reg==='tim'?$('iFix'):$('iTot')).focus();toast('Inserisci l\'importo');return null}
+  const btns=[$('iSave'),$('iNext')];btns.forEach(x=>x.disabled=true);const r=await put(b);btns.forEach(x=>x.disabled=false);return r}
+$('iSave').onclick=async()=>{const was=editId;if(await save()){$('dB').close();toast(was?'Voce aggiornata':'Bolletta aggiunta')}};
+$('iNext').onclick=async()=>{const r=await save();if(!r)return;toast('Salvata '+per(r));editId=null;const p=ymAdd(r.periodo,1);$('iMm').value=p.slice(5);$('iMy').value=p.slice(0,4);$('iPag').value='';calc()};
+$('iDup2').onclick=()=>{const b=S.bills.find(x=>x.id===editId);editId=null;$('dBt').textContent='Nuova bolletta (copia)';$('iDel').hidden=true;$('iDup2').hidden=true;
+  if(b.periodo&&b.periodo.length===7){const p=ymAdd(b.periodo,1);$('iMm').value=p.slice(5);$('iMy').value=p.slice(0,4)}$('iPag').value='';$('iEst').checked=false;$('iEst').parentElement.hidden=true;calc()};
+$('iDel').onclick=async()=>{const x=$('iDel');if(!x.dataset.c){x.dataset.c=1;x.textContent='Conferma eliminazione';return}
+  const old=S.bills.find(b=>b.id===editId);$('dB').close();if(await del(editId))toast('Voce eliminata',()=>put({...old,id:undefined}))};
+$('bNew').onclick=()=>openBill(null);
+
+/* ---------- bonifico ---------- */
+function causale(bs){const g={};for(const b of bs){const k=b.forn||cat(b.cat).nome;(g[k]=g[k]||[]).push(b)}
+  return Object.entries(g).map(([k,a])=>{a.sort((x,y)=>sortKey(x).localeCompare(sortKey(y)));const f=per(a[0]),l=per(a[a.length-1]);return k+' '+(a.length>1?f+' – '+l:f)+' '+eur(a.reduce((s,b)=>s+net(b),0))}).join('; ')}
+function payCalc(){const ids=[...document.querySelectorAll('.pChk:checked')].map(c=>c.value),bs=S.bills.filter(b=>ids.includes(b.id)),t=r2(bs.reduce((s,b)=>s+net(b),0));
+  $('pTot').textContent=eur(t);$('pCaus').value='Quote bollette casa: '+causale(bs)+'. Totale '+eur(t);return bs}
+$('bPay').onclick=()=>{const un=S.bills.filter(b=>!b.pagato).sort((a,b)=>(a.cat>b.cat?1:a.cat<b.cat?-1:0)||sortKey(a).localeCompare(sortKey(b)));if(!un.length){toast('Nessuna voce da versare');return}
+  $('pList').innerHTML=un.map(b=>'<label class="row" style="color:var(--ink);font-size:16px;padding:8px 0;border-bottom:1px solid var(--rule);flex-wrap:nowrap;margin:0"><input type="checkbox" class="pChk" value="'+esc(b.id)+'" checked><span class="sp">'+esc((b.forn||'')+' · '+per(b))+'</span><b class="'+(net(b)<0?'neg':'')+'" style="white-space:nowrap">'+eur(net(b))+'</b></label>').join('');
+  $('pDate').value=TODAY;payCalc();$('dP').showModal()};
+$('pList').addEventListener('change',payCalc);
+$('pAll').onclick=()=>{document.querySelectorAll('.pChk').forEach(c=>c.checked=true);payCalc()};
+$('pNone').onclick=()=>{document.querySelectorAll('.pChk').forEach(c=>c.checked=false);payCalc()};
+$('pCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('pCaus').value);toast('Causale copiata')}catch{$('pCaus').select();toast('Seleziona e copia la causale')}};
+$('pOk').onclick=async()=>{const bs=payCalc(),d=$('pDate').value;if(!bs.length||!d){toast('Scegli le voci e la data');return}
+  $('pOk').disabled=true;const ids=bs.map(b=>b.id),ok=await setPaid(ids,d);$('pOk').disabled=false;if(!ok)return;
+  $('dP').close();toast('Bonifico del '+dL(d)+' registrato',()=>setPaid(ids,null))};
+
+/* ---------- impostazioni ---------- */
+let setDirty=false;
+function renderSettings(){if(setDirty)return;$('sMe').value=S.cfg.me;$('sHe').value=S.cfg.he;$('sLines').innerHTML=S.cfg.linee.map(lineRow).join('');
+  $('sCats').innerHTML=S.cfg.cats.map(catRow).join('')}
+const catRow=c=>'<tr data-c="'+esc(c.id)+'"><td><input class="cN" value="'+esc(c.nome)+'" aria-label="Nome"></td><td><select class="cF" aria-label="Tipo">'+opts([['mese','mensile'],['anno','annuale'],['spot','spot']],c.freq)+'</select></td><td><input class="cD" value="'+esc(c.dal)+'" placeholder="AAAA-MM" aria-label="Dal"></td><td><input class="cA" value="'+esc(c.al)+'" placeholder="attiva" aria-label="Fino a"></td></tr>';
+$('v-impostazioni').addEventListener('input',()=>setDirty=true);
+$('sAddLine').onclick=()=>{setDirty=true;$('sLines').insertAdjacentHTML('beforeend',lineRow({n:'',chi:'io',imp:0}))};
+$('sAddCat').onclick=()=>{setDirty=true;$('sCats').insertAdjacentHTML('beforeend',catRow({id:'u'+Date.now().toString(36),nome:'',freq:'mese',dal:CUR,al:''}))};
+$('sLines').addEventListener('click',e=>{if(e.target.closest('.lX')){setDirty=true;e.target.closest('tr').remove()}});
+$('sSave').onclick=async()=>{const cfg=structuredClone(S.cfg);cfg.me=$('sMe').value.trim()||'Io';cfg.he=$('sHe').value.trim()||'Suocero';cfg.linee=readLines('sLines');
+  cfg.cats=[...$('sCats').rows].map(tr=>{const old=S.cfg.cats.find(x=>x.id===tr.dataset.c)||{};return{...old,id:tr.dataset.c,nome:tr.querySelector('.cN').value.trim()||'Utenza',freq:tr.querySelector('.cF').value,dal:tr.querySelector('.cD').value.trim(),al:tr.querySelector('.cA').value.trim(),forn:old.forn||tr.querySelector('.cN').value.trim()}});
+  const r=await sb.from('impostazioni').update({dati:cfg}).eq('id',1);if(r.error){toast('Salvataggio non riuscito: '+r.error.message);return}
+  S.cfg=cfg;setDirty=false;render();toast('Impostazioni salvate')};
+$('sCsv').onclick=async()=>{const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"',n=x=>String(r2(x)).replace('.',',');
+  const csv=['Utenza;Fornitore;Periodo;Importo;Ripartizione;Pagata da;Tua parte;Netto da versare;Versata il;Media da verificare;Note',...sorted().map(b=>[cat(b.cat).nome,b.forn,per(b),n(b.tot),regL(b),b.chi==='io'?S.cfg.me:S.cfg.he,n(share(b)),n(net(b)),b.pagato,b.stima?'sì':'',b.note].map(q).join(';'))].join('\n');
+  $('csvOut').hidden=false;$('csvOut').value=csv;try{await navigator.clipboard.writeText(csv);toast('CSV copiato: incollalo in Excel')}catch{$('csvOut').select();toast('Seleziona il testo e copialo')}};
+
+/* ---------- accesso ---------- */
+async function start(session){user=session.user;$('who').textContent=user.email;
+  const m=await sb.from('membri').select('ruolo').eq('email',(user.email||'').toLowerCase()).maybeSingle();
+  role=m.data?.ruolo||null;if(!role){msg('Accesso non autorizzato','L\'email '+user.email+' non è nella tabella «membri» su Supabase. Aggiungila e riprova.',true);return}
+  screen('scrApp');route();await load()}
+$('fLogin').onsubmit=async e=>{e.preventDefault();$('lErr').textContent='';const{data,error}=await sb.auth.signInWithPassword({email:$('lEmail').value.trim(),password:$('lPass').value});
+  if(error){$('lErr').textContent=error.message==='Invalid login credentials'?'Email o password non corretti.':error.message;return}start(data.session)};
+const out=async()=>{await sb.auth.signOut();S.bills=[];role=null;screen('scrLogin')};
+$('bOut').onclick=out;$('msgOut').onclick=out;
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&role)load()});
+(async()=>{const C=window.BOLLETTE_CONFIG||{};
+  if(!C.SUPABASE_URL||C.SUPABASE_URL.includes('XXXX')){msg('Configurazione mancante','Apri il file config.js e inserisci URL e chiave del tuo progetto Supabase (vedi LEGGIMI).');return}
+  if(!window.supabase){msg('Connessione assente','Non riesco a caricare la libreria Supabase. Controlla la connessione e ricarica.');return}
+  sb=window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
+  const{data}=await sb.auth.getSession();if(data.session)start(data.session);else screen('scrLogin')})();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
