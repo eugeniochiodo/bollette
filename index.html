@@ -2,23 +2,27 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Bollette di casa</title>
 <meta name="theme-color" content="#141210">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Bollette">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:light dark;
---bg:light-dark(#e7e4df,#171513);--panel:light-dark(#fff,#211e1b);--ink:light-dark(#141210,#eeeae4);
---mut:light-dark(#5e5852,#a8a097);--rule:light-dark(#cfc9c1,#3a3530);--soft:light-dark(#f3f1ed,#1c1917);
---brick:light-dark(#c8371e,#e8634a);--brickbg:light-dark(#f7e3dd,#3a1f19);--warn:light-dark(#8a5a00,#e0b050);--warnbg:light-dark(#fbf0d6,#3a2f14)}
+--bg:#e7e4df;--panel:#fff;--ink:#141210;--mut:#5e5852;--rule:#cfc9c1;--soft:#f3f1ed;--brick:#c8371e;--brickbg:#f7e3dd;--warn:#8a5a00;--warnbg:#fbf0d6;
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#8f8a84;--grid:#e4e0da}
+@media(prefers-color-scheme:dark){:root{--bg:#171513;--panel:#211e1b;--ink:#eeeae4;--mut:#a8a097;--rule:#3a3530;--soft:#1c1917;--brick:#e8634a;--brickbg:#3a1f19;--warn:#e0b050;--warnbg:#3a2f14;
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#0ca30c;--s7:#7d776f;--grid:#2e2a26}}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Schibsted Grotesk",system-ui,sans-serif;overflow-x:clip}
+body{margin:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:var(--bg);color:var(--ink);font:16px/1.55 "Schibsted Grotesk",system-ui,sans-serif;overflow-x:clip}
 .band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
 .wrap{max-width:1240px;margin:0 auto}
 h1{font-size:clamp(32px,5vw,48px);line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
@@ -69,12 +73,16 @@ button.cb{all:unset;cursor:pointer;display:block}button.cb:focus-visible{outline
 .hole b{display:block}
 dialog{border:0;border-radius:10px;padding:0;width:min(640px,96vw);background:var(--panel);color:var(--ink);box-shadow:0 20px 60px #0005}
 dialog::backdrop{background:#0007}
+dialog>form{display:flex;flex-direction:column;max-height:min(90vh,900px);margin:0}
+dialog .db{flex:1 1 auto;max-height:none}
 .dh{padding:18px 22px;border-bottom:2px solid var(--ink);display:flex;align-items:center}
-.db{padding:18px 22px;max-height:70vh;overflow:auto}
+.db{padding:18px 22px;overflow:auto;-webkit-overflow-scrolling:touch}
 .df{padding:14px 22px;border-top:1px solid var(--rule);display:flex;gap:10px;flex-wrap:wrap}
 label{display:block;font-size:14px;color:var(--mut);margin-bottom:4px}
-input,select,textarea{font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);width:100%}
-input[type=checkbox],input[type=radio]{width:20px;min-height:20px;accent-color:var(--brick);flex:none}
+input,select,textarea{-webkit-appearance:none;appearance:none;font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);width:100%}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 12px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:30px}
+input[type=date]{display:block;min-height:44px;line-height:26px}
+input[type=checkbox],input[type=radio]{-webkit-appearance:auto;appearance:auto;width:20px;min-height:20px;accent-color:var(--brick);flex:none}
 .f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}.f1{margin-bottom:14px}
 .seg{display:flex;border:1px solid var(--ink);border-radius:6px;overflow:hidden}
 .seg label{flex:1;margin:0;text-align:center;padding:10px 6px;cursor:pointer;color:var(--ink);font-size:15px;min-height:44px}
@@ -90,15 +98,38 @@ input[type=checkbox],input[type=radio]{width:20px;min-height:20px;accent-color:v
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;display:none;gap:12px;align-items:center;z-index:9;max-width:92vw}
 .toast button{min-height:36px;background:none;color:var(--bg);border-color:var(--bg)}
 .banner{background:var(--brickbg);border:1px solid var(--brick);padding:10px 14px;border-radius:6px;margin-bottom:16px}
+.lnk{all:unset;cursor:pointer;border-radius:4px;padding:2px 4px;margin:-2px -4px;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}.lnk:hover{text-decoration-color:currentColor;background:var(--soft)}.lnk:focus-visible{outline:2px solid var(--brick)}
+.leg .lnk{text-decoration:none}
 .bar{height:10px;background:var(--ink);border-radius:2px}
+.fig{position:relative;height:300px;margin-top:8px;touch-action:pan-y}.fig svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.fig text{font:12px "Schibsted Grotesk",system-ui,sans-serif;fill:var(--mut)}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font-size:13px;box-shadow:0 6px 20px #0002;min-width:170px;display:none;z-index:2}
+.tip .r{display:flex;gap:8px;align-items:center;justify-content:space-between;white-space:nowrap}.tip .r span:first-child{display:inline-flex;gap:6px;align-items:center}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--ink);margin-top:10px}.leg span{display:inline-flex;gap:6px;align-items:center}
+.seg.sm{display:inline-flex}.seg.sm label{padding:8px 12px;min-height:40px;font-size:14px;white-space:nowrap}
+.kpi{display:flex;gap:28px;flex-wrap:wrap;margin:4px 0 6px}.kpi div{font-size:14px;color:var(--mut)}.kpi b{display:block;font-size:26px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
 details{border-bottom:1px solid var(--rule);padding:12px 0}
 summary{cursor:pointer;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;list-style:none}
 summary::-webkit-details-marker{display:none}summary b{font-size:18px}
 .scroll{overflow-x:auto}
 .login{max-width:420px;margin:12vh auto 0}
 .who{font-size:14px;color:var(--mut);margin-left:auto}
+.whoM{display:none}
 [hidden]{display:none!important}
-@media(max-width:600px){.top{grid-template-columns:1fr}.due{text-align:left}.due .row{justify-content:flex-start!important}.f2{grid-template-columns:1fr}.who{width:100%;margin:6px 0 0}
+@media(max-width:600px){.band{padding-left:max(4vw,14px);padding-right:max(4vw,14px)}
+.top{grid-template-columns:1fr;gap:14px}.due{text-align:left}.due .row{justify-content:stretch!important}.due .row button{flex:1}
+.f2{grid-template-columns:1fr}.f2.k{grid-template-columns:repeat(2,minmax(0,1fr))}
+nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-inline:-4px}nav::-webkit-scrollbar{display:none}nav a{flex:none;padding:10px 12px}
+.who{display:none}.whoM{display:block!important}
+.panel{padding:16px 14px;border-radius:6px}
+dialog{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:14px 14px 0 0}dialog>form{max-height:92vh;max-height:92dvh}
+.dh,.db,.df{padding-left:16px;padding-right:16px}.df{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.seg label{font-size:14px;padding:10px 4px}
+.lines .lN{min-width:90px}.lines td:nth-child(2) select{padding-right:26px}
+.holes{grid-template-columns:1fr}.fbar{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}.fbar>*{max-width:none!important}.fbar #q,.fbar #cnt{grid-column:1/-1}.fbar .sp{display:none}.ycell .c{width:34px}.yrow{gap:8px}.yrow>b{width:100%}
+#v-riepilogo .row>.seg.sm{order:3;width:100%}#v-riepilogo .seg.sm label{flex:1}#riep td:first-child,#riep th:first-child{position:sticky;left:0;background:var(--panel);z-index:1}.kpi{gap:14px 24px}
+.grid .cat{font-size:14px!important}
 table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--rule)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--mut);font-size:13px}.stack td:empty{display:none}}
 </style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 <script src="config.js"></script>
@@ -128,6 +159,7 @@ table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-bl
   </header>
   <nav id="nav"><a href="#panoramica">Panoramica</a><a href="#bollette">Bollette</a><a href="#bonifici">Bonifici</a><a href="#riepilogo">Riepilogo</a><a href="#impostazioni" class="ed">Impostazioni</a>
     <span class="who"><span id="who"></span> · <button class="ghost" id="bOut" style="min-height:32px">Esci</button></span></nav>
+  <div class="whoM mut sm" style="margin-top:8px"><span class="whoTxt"></span> · <button class="ghost" id="bOut2" style="min-height:32px">Esci</button></div>
 </div></div>
 
 <main class="band" style="padding-top:0"><div class="wrap">
@@ -139,12 +171,21 @@ table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-bl
 </section>
 <section id="v-bollette" hidden>
   <div class="panel">
-    <div class="row" style="margin-bottom:14px"><input id="q" placeholder="Cerca (es. Iren 2025)" style="max-width:240px" aria-label="Cerca"><select id="fCat" style="max-width:190px" aria-label="Utenza"></select><select id="fYr" style="max-width:130px" aria-label="Anno"></select><select id="fSt" style="max-width:190px" aria-label="Stato"><option value="">Tutte</option><option value="d">Da versare</option><option value="p">Versate</option><option value="e">Da verificare (medie)</option></select><span class="sp"></span><span class="mut sm" id="cnt"></span></div>
+    <div class="row fbar" style="margin-bottom:14px"><input id="q" placeholder="Cerca (es. Iren 2025)" style="max-width:240px" aria-label="Cerca"><select id="fCat" style="max-width:190px" aria-label="Utenza"></select><select id="fYr" style="max-width:130px" aria-label="Anno"></select><select id="fSt" style="max-width:190px" aria-label="Stato"><option value="">Tutte</option><option value="d">Da versare</option><option value="p">Versate</option><option value="e">Da verificare (medie)</option></select><span class="sp"></span><span class="mut sm" id="cnt"></span></div>
+    <div class="row sm" id="fChips" hidden style="margin:-4px 0 12px"></div>
     <table class="stack"><thead><tr><th>Periodo</th><th>Voce</th><th class="num">Importo</th><th>Ripartizione</th><th class="num">Tua parte</th><th>Versata</th></tr></thead><tbody id="tb"></tbody></table>
   </div>
 </section>
 <section id="v-bonifici" hidden><div class="panel"><h2>Bonifici fatti</h2><div id="bon"></div></div></section>
-<section id="v-riepilogo" hidden><div class="panel"><h2>La tua parte per anno</h2><p class="mut sm" style="margin-top:0">Per anno di competenza della bolletta (le spese spot per anno della data). Le cifre negative sono spese anticipate da te e scalate.</p><div class="scroll" id="riep"></div></div></section>
+<section id="v-riepilogo" hidden>
+<div class="panel"><div class="row"><h2 style="margin:0">Andamento mese per mese</h2><span class="sp"></span>
+  <div class="seg sm" role="radiogroup" aria-label="Cosa mostrare"><label><input type="radio" name="chM" value="share" checked>Tua parte</label><label><input type="radio" name="chM" value="tot">Totale bollette</label></div>
+  <select id="chR" style="width:auto" aria-label="Periodo"><option value="12">12 mesi</option><option value="24" selected>24 mesi</option><option value="0">Tutto</option></select></div>
+  <div class="kpi" id="chKpi"></div>
+  <div class="leg" id="chLeg"></div>
+  <div class="fig" id="chFig"><svg id="chSvg" role="img" aria-label="Grafico a colonne mensili per utenza"></svg><div class="tip" id="chTip"></div></div>
+  <p class="mut sm" style="margin-bottom:0">Tocca una colonna per il dettaglio, toccala di nuovo per aprire le bollette di quel mese (col mouse basta un clic). Tocca un'utenza nella legenda per vedere tutte le sue bollette. L'acqua, che è annuale, è spalmata in 12 parti uguali; le spese spot cadono nel mese della data. «Tua parte» è la tua quota della spesa, prima delle compensazioni.</p></div>
+<div class="panel"><h2>La tua parte per anno</h2><p class="mut sm" style="margin-top:0">Tocca un'utenza, un anno o una cifra per vedere le bollette corrispondenti. Per anno di competenza della bolletta (le spese spot per anno della data). Le cifre negative sono spese anticipate da te e scalate.</p><div class="scroll" id="riep"></div></div></section>
 <section id="v-impostazioni" hidden>
   <div class="panel"><h2>Nomi</h2><div class="f2"><div><label for="sMe">Tu</label><input id="sMe"></div><div><label for="sHe">L'intestatario delle utenze</label><input id="sHe"></div></div></div>
   <div class="panel"><h2>Cellulari in bolletta TIM</h2><p class="mut sm" style="margin-top:0">Proposti in ogni nuova bolletta TIM: il fisso si divide a metà, ogni cellulare lo paga chi lo usa.</p>
@@ -164,7 +205,7 @@ table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-bl
   <div class="db">
     <div class="warnbox" id="iDup" hidden></div>
     <div class="f2"><div><label for="iCat">Utenza</label><select id="iCat"></select></div><div><label for="iForn">Fornitore / descrizione</label><input id="iForn"></div></div>
-    <div class="f2" id="perM"><div><label for="iMm">Mese</label><select id="iMm"></select></div><div><label for="iMy">Anno</label><select id="iMy"></select></div></div>
+    <div class="f2 k" id="perM"><div><label for="iMm">Mese</label><select id="iMm"></select></div><div><label for="iMy">Anno</label><select id="iMy"></select></div></div>
     <div class="f1" id="perY" hidden><label for="iY">Anno di competenza</label><select id="iY"></select></div>
     <div class="f1" id="perS" hidden><label for="iData">Data della spesa</label><input type="date" id="iData"></div>
     <div class="f1"><label>Chi ha pagato il fornitore</label><div class="seg"><label><input type="radio" name="chi" value="suocero"><span class="lHe">Suocero</span></label><label><input type="radio" name="chi" value="io"><span class="lMe">Io</span></label></div></div>
@@ -211,6 +252,7 @@ const now=new Date(),CUR=now.getFullYear()+'-'+String(now.getMonth()+1).padStart
 const ymAdd=(ym,n)=>{let[y,m]=ym.split('-').map(Number);m+=n-1;y+=Math.floor(m/12);m=((m%12)+12)%12;return y+'-'+String(m+1).padStart(2,'0')};
 const ymL=ym=>MESI[+ym.slice(5)-1]+' '+ym.slice(0,4);
 const dL=d=>{if(!d)return'';const[y,m,g]=d.split('-');return +g+' '+MESI[+m-1]+' '+y};
+let F={q:'',cat:'',yr:'',st:'',ym:'',from:''};
 let S={bills:[],cfg:structuredClone(DEFCFG)},sb=null,user=null,role=null,editId=null,undo=null;
 const ED=()=>role==='editor';
 const cat=id=>S.cfg.cats.find(c=>c.id===id)||{id,nome:id,freq:'spot'};
@@ -268,8 +310,8 @@ function renderGrid(){const cov=coverage(),cats=S.cfg.cats.filter(c=>c.freq==='m
     return'<div class="hole"><b>'+esc(c.nome)+' · '+n+'</b><span class="sm">'+r.map(([a,b])=>c.freq==='anno'?a:(a===b?ymL(a):ymL(a)+' → '+ymL(b))).map(esc).join(', ')+'</span></div>'}).join('')
     +(est?'<div class="hole w"><b>'+est+' voci con importo medio</b><span class="sm">Dallo storico cumulato. <a href="#bollette" id="goEst" style="color:inherit">Verificale</a></span></div>':'')}
 document.addEventListener('click',e=>{const cb=e.target.closest('button.cb');if(cb){e.preventDefault();const p=cb.dataset.p,c=cb.dataset.c;
-  const ex=S.bills.filter(b=>b.cat===c&&b.periodo===p);if(ex.length===1)openBill(ex[0].id);else if(ex.length>1){location.hash='bollette';$('fCat').value=c;$('q').value=p.length===4?p:ymL(p);render()}else if(ED())openBill(null,{cat:c,periodo:p});return}
-  if(e.target.id==='goEst'){$('fSt').value='e';$('fCat').value='';$('fYr').value='';$('q').value='';setTimeout(render)}
+  const ex=S.bills.filter(b=>b.cat===c&&b.periodo===p);if(ex.length===1)openBill(ex[0].id);else if(ex.length>1){goBills({cat:c,ym:p.length===4?'':p,yr:p.length===4?p:''},'Panoramica')}else if(ED())openBill(null,{cat:c,periodo:p});return}
+  if(e.target.id==='goEst'){e.preventDefault();goBills({st:'e'},'Panoramica')}
   const tr=e.target.closest('tr.click');if(tr)openBill(tr.dataset.id)});
 
 /* ---------- viste ---------- */
@@ -286,25 +328,85 @@ function render(){
   else{$('dueLab').textContent=(tot>=0?'Da versare a '+S.cfg.he:S.cfg.he+' ti deve')+' ('+un.length+(un.length===1?' voce)':' voci)');$('dueBig').textContent=eur(Math.abs(tot));$('dueBig').className='big'+(tot<0?' neg':'')}
   renderGrid();
   $('unpaid').innerHTML=un.length?'<table class="stack">'+TH+'<tbody>'+un.map(rowHtml).join('')+'<tr><td></td><td><b>Totale</b></td><td></td><td></td><td class="num"><b>'+eur(tot)+'</b></td><td></td></tr></tbody></table>':'<p class="mut">Nessuna bolletta in attesa.'+(ED()?' Quando ne arriva una, aggiungila con «+ Bolletta» o toccando il mese scoperto nella griglia.':'')+'</p>';
-  const yrs=[...new Set(S.bills.map(yearOf).filter(Boolean))].sort().reverse();const fy=$('fYr').value;
-  $('fYr').innerHTML='<option value="">Tutti gli anni</option>'+yrs.map(y=>'<option'+(y===fy?' selected':'')+'>'+y+'</option>').join('');
-  const fc=$('fCat').value;$('fCat').innerHTML='<option value="">Tutte le utenze</option>'+S.cfg.cats.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===fc?' selected':'')+'>'+esc(c.nome)+'</option>').join('');
-  const q=$('q').value.toLowerCase().trim(),fs=$('fSt').value;
-  const list=sorted().filter(b=>(!fc||b.cat===fc)&&(!fy||yearOf(b)===fy)&&(!fs||(fs==='p'?b.pagato:fs==='d'?!b.pagato:b.stima))&&(!q||q.split(/\s+/).every(w=>((b.forn||'')+' '+per(b)+' '+cat(b.cat).nome+' '+(b.note||'')+' '+(b.periodo||'')).toLowerCase().includes(w))));
+  const yrs=[...new Set(S.bills.map(yearOf).filter(Boolean))].sort().reverse(),fy=F.yr,fc=F.cat,fs=F.st,q=F.q.toLowerCase().trim();
+  $('fYr').innerHTML='<option value="">Tutti gli anni</option>'+[...new Set([...yrs,...(fy?[fy]:[])])].map(y=>'<option'+(y===fy?' selected':'')+'>'+y+'</option>').join('');
+  $('fCat').innerHTML='<option value="">Tutte le utenze</option>'+S.cfg.cats.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===fc?' selected':'')+'>'+esc(c.nome)+'</option>').join('');
+  $('fSt').value=fs;if($('q').value!==F.q)$('q').value=F.q;
+  const chips=[F.ym&&ymL(F.ym),fc&&cat(fc).nome,fy&&('anno '+fy),fs&&{d:'da versare',p:'versate',e:'da verificare'}[fs],F.q&&('«'+F.q+'»')].filter(Boolean);
+  $('fChips').hidden=!chips.length&&!F.from;
+  $('fChips').innerHTML=(F.from?'<button type="button" class="ghost" id="fBack" style="min-height:36px;padding-left:0">← Torna a '+esc(F.from)+'</button><span class="sp"></span>':'')+(chips.length?'<span class="mut">Filtro: '+chips.map(esc).join(' · ')+'</span><button type="button" class="ghost" id="fClear" style="min-height:36px">Azzera filtri</button>':'');
+  const list=sorted().filter(b=>(!F.ym||b.periodo===F.ym||(!b.periodo&&(b.data||'').startsWith(F.ym)))&&(!fc||b.cat===fc)&&(!fy||yearOf(b)===fy)&&(!fs||(fs==='p'?b.pagato:fs==='d'?!b.pagato:b.stima))&&(!q||q.split(/\s+/).every(w=>((b.forn||'')+' '+per(b)+' '+cat(b.cat).nome+' '+(b.note||'')+' '+(b.periodo||'')).toLowerCase().includes(w))));
   $('cnt').textContent=list.length+' voci · tua parte '+eur(list.reduce((s,b)=>s+net(b),0));
   $('tb').innerHTML=list.length?list.map(rowHtml).join(''):'<tr><td colspan="6" class="mut">Nessuna voce trovata.</td></tr>';
   $('bon').innerHTML=pays.length?pays.map(d=>{const bs=S.bills.filter(b=>b.pagato===d).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));const t=bs.reduce((s,b)=>s+net(b),0);
     return'<details><summary><b>'+esc(dL(d))+'</b><span class="mut sm">'+bs.length+' voci</span><span class="sp"></span><b>'+eur(t)+'</b></summary><table class="stack" style="margin-top:8px">'+TH+'<tbody>'+bs.map(rowHtml).join('')+'</tbody></table></details>'}).join(''):'<p class="mut">Ancora nessun bonifico registrato.</p>';
   const cs=S.cfg.cats,rows=yrs.map(y=>{const v=cs.map(c=>S.bills.filter(b=>yearOf(b)===y&&b.cat===c.id).reduce((s,b)=>s+net(b),0));return{y,v,t:v.reduce((a,b)=>a+b,0)}}),mx=Math.max(1,...rows.map(r=>r.t));
-  $('riep').innerHTML=rows.length?'<table><thead><tr><th>Anno</th>'+cs.map(c=>'<th class="num">'+esc(c.nome)+'</th>').join('')+'<th class="num">Totale</th><th style="width:20%"></th></tr></thead><tbody>'+rows.map(r=>'<tr><td><b>'+r.y+'</b></td>'+r.v.map(x=>'<td class="num'+(x<0?' neg':'')+'">'+(x?eur(x):'–')+'</td>').join('')+'<td class="num"><b>'+eur(r.t)+'</b></td><td><div class="bar" style="width:'+Math.max(0,r.t/mx*100)+'%"></div></td></tr>').join('')+'</tbody></table>':'<p class="mut">Nessun dato.</p>';
-  renderSettings()}
-['q','fCat','fSt','fYr'].forEach(i=>$(i).addEventListener('input',render));
+  $('riep').innerHTML=rows.length?'<table><thead><tr><th>Anno</th>'+cs.map(c=>'<th class="num"><button class="lnk" data-go data-cat="'+esc(c.id)+'" title="Tutte le bollette '+esc(c.nome)+'">'+esc(c.nome)+'</button></th>').join('')+'<th class="num">Totale</th><th style="width:20%"></th></tr></thead><tbody>'+rows.map(r=>'<tr><td><button class="lnk" data-go data-yr="'+r.y+'"><b>'+r.y+'</b></button></td>'+r.v.map((x,j)=>'<td class="num'+(x<0?' neg':'')+'">'+(x?'<button class="lnk" data-go data-cat="'+esc(cs[j].id)+'" data-yr="'+r.y+'" title="'+esc(cs[j].nome+' '+r.y)+'">'+eur(x)+'</button>':'–')+'</td>').join('')+'<td class="num"><button class="lnk" data-go data-yr="'+r.y+'"><b>'+eur(r.t)+'</b></button></td><td><div class="bar" style="width:'+Math.max(0,r.t/mx*100)+'%"></div></td></tr>').join('')+'</tbody></table>':'<p class="mut">Nessun dato.</p>';
+  renderSettings();drawChart()}
+const FK={q:'q',fCat:'cat',fSt:'st',fYr:'yr'};
+['q','fCat','fSt','fYr'].forEach(i=>$(i).addEventListener('input',()=>{F[FK[i]]=$(i).value;render()}));
+function goBills(f,from){F={q:'',cat:'',yr:'',st:'',ym:'',from:from||'',...f};if(location.hash!=='#bollette')location.hash='bollette';render();scrollTo(0,0)}
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){e.preventDefault();goBills({cat:g.dataset.cat||'',yr:g.dataset.yr||'',q:g.dataset.q||''},'Riepilogo');return}
+  if(e.target.id==='fClear'){F={...F,q:'',cat:'',yr:'',st:'',ym:''};render()}
+  if(e.target.id==='fBack'){location.hash=F.from==='Riepilogo'?'riepilogo':'panoramica';F.from='';render()}});
 
 const VIEWS=['panoramica','bollette','bonifici','riepilogo','impostazioni'];
 function route(){let v=location.hash.slice(1);if(!VIEWS.includes(v)||(v==='impostazioni'&&!ED()))v='panoramica';
-  VIEWS.forEach(x=>$('v-'+x).hidden=x!==v);document.querySelectorAll('#nav a').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+v));if(v==='panoramica')renderGrid()}
+  VIEWS.forEach(x=>$('v-'+x).hidden=x!==v);document.querySelectorAll('#nav a').forEach(a=>a.toggleAttribute('aria-current',a.hash==='#'+v));if(v==='panoramica')renderGrid();if(v==='riepilogo')drawChart()}
 addEventListener('hashchange',route);
 
+
+/* ---------- grafico mensile ---------- */
+const COLV=['--s1','--s2','--s3','--s4','--s5','--s6'];
+const catColor=i=>'var('+(COLV[i]||'--s7')+')';
+let chData=null;
+function chartData(){const mode=document.querySelector('input[name=chM]:checked').value,rng=+$('chR').value;
+  const val=b=>mode==='tot'?b.tot:share(b);const months={};
+  for(const b of S.bills){const k=kind(b);
+    if(k==='mese')add(b.periodo,b.cat,val(b));
+    else if(k==='anno'){for(let m=1;m<=12;m++)add(b.periodo+'-'+String(m).padStart(2,'0'),b.cat,val(b)/12)}
+    else if(b.data)add(b.data.slice(0,7),b.cat,val(b))}
+  function add(ym,c,v){(months[ym]=months[ym]||{})[c]=(months[ym][c]||0)+v}
+  const keys=Object.keys(months).filter(k=>k<=CUR).sort();if(!keys.length)return null;
+  let end=keys[keys.length-1],start=rng?ymAdd(end,-(rng-1)):keys[0];if(start<keys[0])start=keys[0];
+  const cols=[];for(let ym=start;ym<=end;ym=ymAdd(ym,1))cols.push({ym,v:months[ym]||{}});
+  const cats=S.cfg.cats.map((c,i)=>({...c,i})).filter(c=>cols.some(x=>x.v[c.id]));
+  cols.forEach(x=>x.t=cats.reduce((s,c)=>s+(x.v[c.id]||0),0));return{cols,cats,mode}}
+function drawChart(){const svg=$('chSvg');if($('v-riepilogo').hidden)return;chData=chartData();
+  if(!chData){svg.innerHTML='';$('chLeg').innerHTML='';$('chKpi').innerHTML='<div class="mut">Nessun dato.</div>';return}
+  const{cols,cats,mode}=chData,W=svg.clientWidth,H=svg.clientHeight,narrow=W<520,L=narrow?40:52,R=6,T=10,B=narrow?30:36,iw=W-L-R,ih=H-T-B;
+  const max=Math.max(1,...cols.map(c=>c.t)),step=[5,10,20,25,50,100,200,250,500,1000].find(s=>max/s<=5)||1000,top=Math.ceil(max/step)*step;
+  const y=v=>T+ih-v/top*ih,bw=iw/cols.length,w=Math.max(2,Math.min(28,bw*0.72));
+  let g='';for(let v=0;v<=top;v+=step)g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="var(--grid)" stroke-width="1"/><text x="'+(L-6)+'" y="'+(y(v)+4)+'" text-anchor="end">'+(v?v+' €':'0')+'</text>';
+  g+='<rect id="chHi" x="0" y="'+T+'" width="'+bw+'" height="'+ih+'" fill="var(--soft)" opacity="0"/>';
+  cols.forEach((c,i)=>{const x=L+i*bw+(bw-w)/2;let acc=0;const segs=cats.filter(k=>c.v[k.id]>0);
+    segs.forEach((k,j)=>{const v=c.v[k.id],y0=y(acc),y1=y(acc+v);acc+=v;const hgt=Math.max(0,y0-y1-(j<segs.length-1?2:0));
+      if(j===segs.length-1){const r=Math.min(4,w/2,hgt);g+='<path d="M'+x+','+(y0)+'V'+(y1+r)+'Q'+x+','+y1+' '+(x+r)+','+y1+'H'+(x+w-r)+'Q'+(x+w)+','+y1+' '+(x+w)+','+(y1+r)+'V'+y0+'Z" fill="'+catColor(k.i)+'" transform="translate(0,0)"/>'}
+      else g+='<rect x="'+x+'" y="'+(y1+2)+'" width="'+w+'" height="'+Math.max(0,y0-y1-2)+'" fill="'+catColor(k.i)+'"/>'});
+    const jan=c.ym.endsWith('-01');const lx=L+i*bw+bw/2;
+    {if(!narrow||bw>=14||jan||i===0)g+='<text x="'+lx+'" y="'+(T+ih+16)+'" text-anchor="middle">'+((narrow&&bw<14)?'':MESI[+c.ym.slice(5)-1][0].toUpperCase())+'</text>'}
+    const firstOk=i===0&&!cols.slice(1,4).some(z=>z.ym.endsWith('-01'))&&bw*4>34;if(jan||firstOk)g+='<text x="'+(L+i*bw+2)+'" y="'+(T+ih+(narrow?28:32))+'" style="fill:var(--ink);font-weight:700">'+c.ym.slice(0,4)+'</text>'});
+  g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="var(--mut)" stroke-width="1"/>';
+  svg.innerHTML=g;
+  $('chLeg').innerHTML=cats.map(k=>'<button class="lnk" data-go data-cat="'+esc(k.id)+'"><span><i class="sw" style="background:'+catColor(k.i)+'"></i>'+esc(k.nome)+'</span></button>').join('');
+  const last12=cols.slice(-12),avg=last12.reduce((s,c)=>s+c.t,0)/last12.length,prev=cols.slice(-24,-12),pavg=prev.length===12?prev.reduce((s,c)=>s+c.t,0)/12:null;
+  const pk=cols.reduce((a,c)=>c.t>a.t?c:a,cols[0]);
+  $('chKpi').innerHTML='<div><b>'+eur(avg)+'</b>media al mese, ultimi '+last12.length+' mesi'+(pavg?' · '+(avg>=pavg?'+':'−')+eur(Math.abs(avg-pavg))+' sull\'anno prima':'')+'</div><div><b>'+eur(pk.t)+'</b>mese più caro: '+ymL(pk.ym)+'</div>'}
+function chHover(ev){if(!chData)return;const svg=$('chSvg'),r=svg.getBoundingClientRect(),W=r.width,narrow=W<520,L=narrow?40:52,R=6,bw=(W-L-R)/chData.cols.length;
+  const i=Math.floor((ev.clientX-r.left-L)/bw);const tip=$('chTip'),hi=$('chHi');if(i<0||i>=chData.cols.length){chData.hi=-1;tip.style.display='none';hi&&hi.setAttribute('opacity',0);return}
+  const c=chData.cols[i];chData.hi=i;hi.setAttribute('x',L+i*bw);hi.setAttribute('opacity',1);
+  tip.innerHTML='<div style="font-weight:700;margin-bottom:4px">'+esc(ymL(c.ym))+'</div>'+'<div class="mut" style="font-size:12px;margin:-2px 0 4px">'+(ev.pointerType==='mouse'?'Clic':'Tocca di nuovo')+' per vedere le bollette</div>'+chData.cats.filter(k=>c.v[k.id]).reverse().map(k=>'<div class="r"><span><i class="sw" style="background:'+catColor(k.i)+'"></i>'+esc(k.nome)+'</span><span>'+eur(c.v[k.id])+'</span></div>').join('')+'<div class="r" style="border-top:1px solid var(--rule);margin-top:4px;padding-top:4px;font-weight:700"><span>Totale</span><span>'+eur(c.t)+'</span></div>';
+  tip.style.display='block';const tw=tip.offsetWidth,x=L+i*bw+bw/2;tip.style.left=Math.max(0,Math.min(W-tw,x+12>W-tw?x-tw-12:x+12))+'px'}
+let chTouch=false,chSel=-1;
+$('chFig').addEventListener('touchstart',()=>{chTouch=true},{passive:true});
+$('chFig').addEventListener('pointerdown',ev=>{chTouch=ev.pointerType!=='mouse'});
+$('chFig').addEventListener('pointermove',ev=>{if(ev.pointerType==='mouse')chHover(ev)});
+$('chFig').addEventListener('click',ev=>{if(!chData)return;const prev=chSel;chHover({clientX:ev.clientX,pointerType:chTouch?'touch':'mouse'});const i=chData.hi;if(i==null||i<0)return;
+  if(!chTouch||prev===i){chSel=-1;goBills({ym:chData.cols[i].ym},'Riepilogo')}else chSel=i});
+$('chFig').addEventListener('pointerleave',()=>{$('chTip').style.display='none';const hi=$('chHi');hi&&hi.setAttribute('opacity',0)});
+document.querySelectorAll('input[name=chM]').forEach(x=>x.addEventListener('change',drawChart));$('chR').addEventListener('change',drawChart);
+if(innerWidth<600)$('chR').value='12';
+const chRO=new ResizeObserver(()=>drawChart());chRO.observe($('chFig'));
 /* ---------- scheda bolletta ---------- */
 const opts=(a,sel)=>a.map(([v,l])=>'<option value="'+esc(v)+'"'+(String(v)===String(sel)?' selected':'')+'>'+esc(l)+'</option>').join('');
 const YRS=[];for(let y=now.getFullYear()+1;y>=2015;y--)YRS.push([y,y]);
@@ -398,14 +500,15 @@ $('sCsv').onclick=async()=>{const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"',
   $('csvOut').hidden=false;$('csvOut').value=csv;try{await navigator.clipboard.writeText(csv);toast('CSV copiato: incollalo in Excel')}catch{$('csvOut').select();toast('Seleziona il testo e copialo')}};
 
 /* ---------- accesso ---------- */
-async function start(session){user=session.user;$('who').textContent=user.email;
+async function start(session){user=session.user;$('who').textContent=user.email;document.querySelectorAll('.whoTxt').forEach(x=>x.textContent=user.email);
   const m=await sb.from('membri').select('ruolo').eq('email',(user.email||'').toLowerCase()).maybeSingle();
+  if(m.error){msg('Errore di accesso ai dati','Supabase risponde: '+m.error.message+(m.error.code?' ('+m.error.code+')':'')+'. Controlla i permessi (grant) nello schema.',true);return}
   role=m.data?.ruolo||null;if(!role){msg('Accesso non autorizzato','L\'email '+user.email+' non è nella tabella «membri» su Supabase. Aggiungila e riprova.',true);return}
   screen('scrApp');route();await load()}
 $('fLogin').onsubmit=async e=>{e.preventDefault();$('lErr').textContent='';const{data,error}=await sb.auth.signInWithPassword({email:$('lEmail').value.trim(),password:$('lPass').value});
   if(error){$('lErr').textContent=error.message==='Invalid login credentials'?'Email o password non corretti.':error.message;return}start(data.session)};
 const out=async()=>{await sb.auth.signOut();S.bills=[];role=null;screen('scrLogin')};
-$('bOut').onclick=out;$('msgOut').onclick=out;
+$('bOut').onclick=out;$('bOut2').onclick=out;$('msgOut').onclick=out;
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&role)load()});
 (async()=>{const C=window.BOLLETTE_CONFIG||{};
   if(!C.SUPABASE_URL||C.SUPABASE_URL.includes('XXXX')){msg('Configurazione mancante','Apri il file config.js e inserisci URL e chiave del tuo progetto Supabase (vedi LEGGIMI).');return}
