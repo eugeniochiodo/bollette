@@ -1,0 +1,17 @@
+# Tiene sveglio il database Supabase gratuito (si mette in pausa dopo 7 giorni senza attività).
+# Va creato su GitHub nel percorso:  .github/workflows/sveglia.yml
+name: Sveglia Supabase
+on:
+  schedule:
+    - cron: "17 6 */3 * *"   # ogni 3 giorni
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiama la funzione ping
+        run: |
+          URL=$(grep -o 'https://[^"]*supabase.co' config.js)
+          KEY=$(grep -o 'SUPABASE_ANON_KEY: *"[^"]*"' config.js | sed 's/.*"\(.*\)"/\1/')
+          curl -sf -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{}'
