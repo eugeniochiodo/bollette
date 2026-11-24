@@ -93,6 +93,7 @@ input[type=checkbox],input[type=radio]{-webkit-appearance:auto;appearance:auto;w
 .calc{background:var(--soft);border-radius:8px;padding:14px 16px;margin-top:6px}
 .calc .r{display:flex;justify-content:space-between;gap:10px}
 .calc .t{font-size:22px;font-weight:700;border-top:1px solid var(--rule);margin-top:8px;padding-top:8px}
+.grpbox{background:var(--soft);border-radius:6px;padding:8px 12px;font-size:14px;margin-bottom:14px}
 .warnbox{background:var(--warnbg);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:14px;margin-bottom:14px}
 .lines td{padding:4px}.lines input,.lines select{min-height:40px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;display:none;gap:12px;align-items:center;z-index:9;max-width:92vw}
@@ -204,8 +205,10 @@ table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-bl
   <div class="dh"><h2 style="margin:0" id="dBt">Nuova bolletta</h2><span class="sp"></span><button value="x" class="ghost">Chiudi</button></div>
   <div class="db">
     <div class="warnbox" id="iDup" hidden></div>
+    <div class="grpbox" id="iGrp" hidden><span id="iGrpT"></span> <button type="button" class="ghost neg" id="iGrpDel" style="min-height:32px">Elimina tutta la bolletta</button></div>
     <div class="f2"><div><label for="iCat">Utenza</label><select id="iCat"></select></div><div><label for="iForn">Fornitore / descrizione</label><input id="iForn"></div></div>
-    <div class="f2 k" id="perM"><div><label for="iMm">Mese</label><select id="iMm"></select></div><div><label for="iMy">Anno</label><select id="iMy"></select></div></div>
+    <div class="f2 k" id="perM"><div><label for="iMm" id="lMm">Mese</label><select id="iMm"></select></div><div><label for="iMy">Anno</label><select id="iMy"></select></div></div>
+    <div class="f1" id="perN"><label for="iN">Mesi coperti dalla bolletta</label><select id="iN"><option value="1">1 mese (mensile)</option><option value="2">2 mesi (bimestrale)</option><option value="3">3 mesi (trimestrale)</option><option value="4">4 mesi</option><option value="6">6 mesi (semestrale)</option><option value="12">12 mesi</option></select><div class="sm mut" id="iNinfo" style="margin-top:4px"></div></div>
     <div class="f1" id="perY" hidden><label for="iY">Anno di competenza</label><select id="iY"></select></div>
     <div class="f1" id="perS" hidden><label for="iData">Data della spesa</label><input type="date" id="iData"></div>
     <div class="f1"><label>Chi ha pagato il fornitore</label><div class="seg"><label><input type="radio" name="chi" value="suocero"><span class="lHe">Suocero</span></label><label><input type="radio" name="chi" value="io"><span class="lMe">Io</span></label></div></div>
@@ -241,7 +244,7 @@ const DEFCFG={me:'Io',he:'Suocero',linee:[{n:'Mio cellulare 1',chi:'io',imp:0},{
  cats:[{id:'luce',nome:'Luce e gas',freq:'mese',dal:'2022-10',al:'',forn:'Iren'},{id:'tim',nome:'TIM',freq:'mese',dal:'2022-10',al:'',forn:'Tim'},
  {id:'dazn',nome:'DAZN',freq:'mese',dal:'2022-10',al:'',forn:'Dazn'},{id:'nowtv',nome:'Now TV',freq:'mese',dal:'2024-09',al:'',forn:'Now TV',chi:'io'},
  {id:'acqua',nome:'Acqua',freq:'anno',dal:'2019',al:'',forn:'Acqua'},{id:'altro',nome:'Spese spot',freq:'spot',dal:'',al:'',forn:''}]};
-const COLS=['cat','forn','periodo','data','tot','chi','reg','quota','fisso','linee','pagato','note','stima'];
+const COLS=['cat','forn','periodo','data','tot','chi','reg','quota','fisso','linee','pagato','note','stima','gruppo'];
 const $=s=>document.getElementById(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const r2=x=>Math.sign(x)*Math.round(Number((Math.abs(x)*100).toFixed(6)))/100;
@@ -278,8 +281,21 @@ async function load(){const[a,c]=await Promise.all([sb.from('bollette').select('
   S.bills=a.data.map(norm);if(c.data&&c.data.dati&&Object.keys(c.data.dati).length)S.cfg={...structuredClone(DEFCFG),...c.data.dati};render()}
 async function put(b){const row=clean(b);let r;
   if(b.id)r=await sb.from('bollette').update(row).eq('id',b.id).select();else r=await sb.from('bollette').insert(row).select();
-  if(r.error){toast('Salvataggio non riuscito: '+r.error.message);return null}
+  if(r.error){toast(saveErr(r.error));return null}
   const saved=norm(r.data[0]);const i=S.bills.findIndex(x=>x.id===saved.id);i<0?S.bills.push(saved):S.bills[i]=saved;render();return saved}
+const saveErr=e=>/gruppo/.test(e.message||'')?'Manca la colonna «gruppo»: esegui 3_aggiornamento.sql su Supabase':'Salvataggio non riuscito: '+e.message;
+async function putMany(list){const r=await sb.from('bollette').insert(list.map(clean)).select();if(r.error){toast(saveErr(r.error));return null}
+  const saved=r.data.map(norm);S.bills.push(...saved);render();return saved}
+async function delGroup(g){const r=await sb.from('bollette').delete().eq('gruppo',g);if(r.error){toast('Eliminazione non riuscita: '+r.error.message);return false}S.bills=S.bills.filter(b=>b.gruppo!==g);render();return true}
+const grp=g=>S.bills.filter(b=>g&&b.gruppo===g).sort((a,b)=>a.periodo.localeCompare(b.periodo));
+const NOMEN={2:'bimestrale',3:'trimestrale',6:'semestrale'};const nMesi=n=>NOMEN[n]||n+' mesi';
+const parts=(t,n)=>{const p=r2(t/n),a=Array(n-1).fill(p);a.push(r2(t-p*(n-1)));return a};
+function splitBill(b,n){const g=(crypto.randomUUID?crypto.randomUUID():'g'+Date.now()+Math.random().toString(16).slice(2)),out=[];
+  const tp=parts(b.tot,n),qp=b.reg==='quota'?parts(b.quota,n):null,fp=b.reg==='tim'?parts(b.fisso,n):null,lp=b.reg==='tim'?b.linee.map(l=>parts(l.imp,n)):null;
+  for(let i=0;i<n;i++){const o={...b,id:undefined,gruppo:g,periodo:ymAdd(b.periodo,i)};
+    if(b.reg==='tim'){o.fisso=fp[i];o.linee=b.linee.map((l,j)=>({...l,imp:lp[j][i]}));o.tot=r2(o.fisso+o.linee.reduce((s,l)=>s+l.imp,0))}else o.tot=tp[i];
+    if(qp)o.quota=qp[i];out.push(o)}
+  return out}
 async function del(id){const r=await sb.from('bollette').delete().eq('id',id);if(r.error){toast('Eliminazione non riuscita: '+r.error.message);return false}S.bills=S.bills.filter(b=>b.id!==id);render();return true}
 async function setPaid(ids,d){const r=await sb.from('bollette').update({pagato:d||null}).in('id',ids);if(r.error){toast('Errore: '+r.error.message);return false}
   S.bills.forEach(b=>{if(ids.includes(b.id))b.pagato=d||''});render();return true}
@@ -315,7 +331,7 @@ document.addEventListener('click',e=>{const cb=e.target.closest('button.cb');if(
   const tr=e.target.closest('tr.click');if(tr)openBill(tr.dataset.id)});
 
 /* ---------- viste ---------- */
-function rowHtml(b){const n=net(b);return'<tr class="click" data-id="'+esc(b.id)+'"><td>'+esc(per(b))+'</td><td><b>'+esc(b.forn||cat(b.cat).nome)+'</b>'+(b.stima?' <span class="tag est">media</span>':'')+(b.note?'<div class="sm mut">'+esc(b.note)+'</div>':'')+'</td><td class="num">'+eur(b.tot)+'</td><td class="sm">'+esc(regL(b))+(b.chi==='io'?'<div class="mut">pagata da '+esc(S.cfg.me)+'</div>':'')+'</td><td class="num'+(n<0?' neg':'')+'"><b>'+eur(n)+'</b></td><td>'+(b.pagato?esc(dL(b.pagato)):'<span class="tag due">da versare</span>')+'</td></tr>'}
+function rowHtml(b){const n=net(b);return'<tr class="click" data-id="'+esc(b.id)+'"><td>'+esc(per(b))+'</td><td><b>'+esc(b.forn||cat(b.cat).nome)+'</b>'+(b.stima?' <span class="tag est">media</span>':'')+(b.gruppo?' <span class="tag">'+esc(nMesi(grp(b.gruppo).length))+'</span>':'')+(b.note?'<div class="sm mut">'+esc(b.note)+'</div>':'')+'</td><td class="num">'+eur(b.tot)+'</td><td class="sm">'+esc(regL(b))+(b.chi==='io'?'<div class="mut">pagata da '+esc(S.cfg.me)+'</div>':'')+'</td><td class="num'+(n<0?' neg':'')+'"><b>'+eur(n)+'</b></td><td>'+(b.pagato?esc(dL(b.pagato)):'<span class="tag due">da versare</span>')+'</td></tr>'}
 const sorted=()=>[...S.bills].sort((a,b)=>(b.pagato||'9999').localeCompare(a.pagato||'9999')||sortKey(b).localeCompare(sortKey(a))||(a.cat>b.cat?1:-1));
 const TH='<thead><tr><th>Periodo</th><th>Voce</th><th class="num">Importo</th><th>Ripartizione</th><th class="num">Tua parte</th><th>Versata</th></tr></thead>';
 function render(){
@@ -416,7 +432,7 @@ const setRadio=(n,v)=>{const r=document.querySelector('#fB input[name='+n+'][val
 const lineRow=l=>'<tr><td><input class="lN" value="'+esc(l.n)+'" aria-label="Cellulare"></td><td><select class="lC" aria-label="Di chi">'+opts([['io',S.cfg.me],['suocero',S.cfg.he]],l.chi)+'</select></td><td><input class="lI" inputmode="decimal" value="'+esc(l.imp?fmtIn(l.imp):'')+'" aria-label="Importo" style="text-align:right"></td><td><button type="button" class="ghost lX" aria-label="Togli">✕</button></td></tr>';
 const readLines=tb=>[...$(tb).rows].map(r=>({n:r.querySelector('.lN').value.trim(),chi:r.querySelector('.lC').value,imp:numIn(r.querySelector('.lI').value)})).filter(l=>l.n||l.imp);
 function readForm(){const c=cat($('iCat').value),reg=radio('reg');
-  const b={id:editId||undefined,cat:c.id,forn:$('iForn').value.trim()||c.nome,chi:radio('chi'),reg,note:$('iNote').value.trim(),pagato:$('iPag').value||'',stima:$('iEst').checked,periodo:null,data:null,quota:null,fisso:null,linee:null};
+  const b={id:editId||undefined,cat:c.id,forn:$('iForn').value.trim()||c.nome,chi:radio('chi'),reg,note:$('iNote').value.trim(),pagato:$('iPag').value||'',stima:$('iEst').checked,gruppo:(editId&&S.bills.find(x=>x.id===editId)?.gruppo)||null,periodo:null,data:null,quota:null,fisso:null,linee:null};
   if(c.freq==='mese')b.periodo=$('iMy').value+'-'+$('iMm').value;else if(c.freq==='anno')b.periodo=$('iY').value;else b.data=$('iData').value||TODAY;
   if(reg==='tim'){b.fisso=numIn($('iFix').value);b.linee=readLines('iLines');b.tot=r2(b.fisso+b.linee.reduce((s,l)=>s+l.imp,0))}else b.tot=numIn($('iTot').value);
   if(reg==='quota')b.quota=numIn($('iQ').value);return b}
@@ -427,10 +443,17 @@ function calc(){const reg=radio('reg');$('boxTim').hidden=reg!=='tim';$('boxTot'
   if(reg==='tim'){const mine=b.linee.filter(l=>l.chi==='io').reduce((x,l)=>x+l.imp,0),his=b.linee.filter(l=>l.chi!=='io').reduce((x,l)=>x+l.imp,0);
     h+='<div class="r sm"><span>Metà del fisso</span><span>'+eur(r2(b.fisso/2))+'</span></div><div class="r sm"><span>Tuoi cellulari</span><span>'+eur(mine)+'</span></div><div class="r sm mut"><span>Cellulari di '+he+'</span><span>'+eur(his)+'</span></div>'}
   h+='<div class="r"><span>La tua parte della spesa</span><b>'+eur(s)+'</b></div><div class="r t"><span>'+(n>=0?'Da versare a '+he:he+' ti deve (si scala)')+'</span><span class="'+(n<0?'neg':'')+'">'+eur(Math.abs(n))+'</span></div>';
+  const N=(!editId&&c.freq==='mese')?+$('iN').value:1;$('perN').hidden=!!editId||c.freq!=='mese';$('lMm').textContent=N>1?'Dal mese':'Mese';
+  if(N>1&&b.tot>0){const sp=splitBill(b,N);$('iNinfo').textContent='Copre '+ymL(b.periodo)+' → '+ymL(ymAdd(b.periodo,N-1))+'. Verrà divisa in '+N+' voci mensili, modificabili una per una.';
+    h+='<div class="r sm mut" style="margin-top:8px;border-top:1px solid var(--rule);padding-top:8px"><span>Mese per mese</span><span>importo · tua parte</span></div>'+sp.map(x=>'<div class="r sm"><span>'+esc(ymL(x.periodo))+'</span><span>'+eur(x.tot)+' · '+eur(net(x))+'</span></div>').join('')}
+  else $('iNinfo').textContent='';
   $('calc').innerHTML=h;
-  const dup=b.periodo&&S.bills.filter(x=>x.cat===b.cat&&x.periodo===b.periodo&&x.id!==editId);
-  $('iDup').hidden=!(dup&&dup.length);if(dup&&dup.length)$('iDup').textContent='Attenzione: per '+per(b)+' esiste già '+(dup.length>1?dup.length+' voci':'una voce')+' di '+c.nome+' ('+dup.map(x=>eur(x.tot)).join(', ')+'). Va bene solo se è un conguaglio o una seconda bolletta.';
-  $('iNext').hidden=!!editId||c.freq!=='mese'}
+  const months=b.periodo&&b.periodo.length===7?Array.from({length:N},(_,i)=>ymAdd(b.periodo,i)):[b.periodo];
+  const dup=b.periodo&&S.bills.filter(x=>x.cat===b.cat&&months.includes(x.periodo)&&x.id!==editId);
+  $('iDup').hidden=!(dup&&dup.length);if(dup&&dup.length)$('iDup').textContent='Attenzione: per '+[...new Set(dup.map(per))].join(', ')+' esiste già '+(dup.length>1?dup.length+' voci':'una voce')+' di '+c.nome+' ('+dup.map(x=>eur(x.tot)).join(', ')+'). Va bene solo se è un conguaglio o una seconda bolletta.';
+  $('iNext').hidden=!!editId||c.freq!=='mese';
+  const o=editId&&S.bills.find(x=>x.id===editId),gg=o&&grp(o.gruppo);$('iGrp').hidden=!(gg&&gg.length);
+  if(gg&&gg.length){$('iGrpT').textContent='Fa parte di una bolletta '+nMesi(gg.length)+' '+(o.forn||'')+' '+ymL(gg[0].periodo)+' – '+ymL(gg[gg.length-1].periodo)+', totale '+eur(gg.reduce((s,x)=>s+x.tot,0))+'. Qui modifichi solo '+ymL(o.periodo)+'.'}}
 const lastOf=cid=>S.bills.filter(b=>b.cat===cid&&b.periodo).sort((a,b)=>b.periodo.localeCompare(a.periodo))[0];
 function fill(b,pre){const c=cat($('iCat').value),last=lastOf(c.id),src=b||last;
   $('iForn').value=b?b.forn:(last?.forn||c.forn||'');
@@ -438,9 +461,12 @@ function fill(b,pre){const c=cat($('iCat').value),last=lastOf(c.id),src=b||last;
   if(c.freq==='mese'){$('iMm').innerHTML=opts(MO,p.slice(5));$('iMy').innerHTML=opts(YRS,p.slice(0,4))}
   $('iY').innerHTML=opts(YRS,c.freq==='anno'?p:now.getFullYear()-1);$('iData').value=b?.data||TODAY;
   setRadio('chi',b?b.chi:(last?.chi||c.chi||'suocero'));setRadio('reg',b?b.reg:(last&&!last.stima?last.reg:(c.id==='tim'?'tim':'meta')));
-  const t=b||(last&&!last.stima&&c.freq==='mese'?last:null);
+  let t=b||(last&&!last.stima&&c.freq==='mese'?last:null);
+  if(!b&&t&&t.gruppo){const gg=grp(t.gruppo);t={...t,tot:r2(gg.reduce((s,x)=>s+x.tot,0)),quota:t.quota==null?null:r2(gg.reduce((s,x)=>s+(+x.quota||0),0)),fisso:t.fisso==null?null:r2(gg.reduce((s,x)=>s+(+x.fisso||0),0)),linee:t.linee?t.linee.map((l,j)=>({...l,imp:r2(gg.reduce((s,x)=>s+(+(x.linee||[])[j]?.imp||0),0))})):null}}
   $('iTot').value=t?fmtIn(t.tot):'';$('iQ').value=t&&t.quota!=null?fmtIn(t.quota):'';$('iFix').value=t&&t.fisso!=null?fmtIn(t.fisso):'';
   $('iLines').innerHTML=((t&&t.reg==='tim'&&t.linee)||S.cfg.linee).map(lineRow).join('');
+  $('iN').value=String(!b&&last&&last.gruppo?Math.min(12,grp(last.gruppo).length):1);if(!$('iN').value)$('iN').value='1';
+  delete $('iGrpDel').dataset.c;$('iGrpDel').textContent='Elimina tutta la bolletta';
   $('iNote').value=b?b.note||'':'';$('iPag').value=b?b.pagato||'':'';$('iEst').checked=!!b?.stima;$('iEst').parentElement.hidden=!b?.stima;calc()}
 function openBill(id,pre){if(id&&!ED()){const b=S.bills.find(x=>x.id===id);if(b)toast(per(b)+' · '+(b.forn||'')+': '+eur(b.tot)+', tua parte '+eur(net(b)));return}
   const b=id?S.bills.find(x=>x.id===id):null;editId=b?b.id:null;$('dBt').textContent=b?'Modifica voce':'Nuova bolletta';
@@ -457,13 +483,19 @@ $('fB').addEventListener('input',e=>{if(e.target.id==='iCat')return;
 $('iAddLine').onclick=()=>{$('iLines').insertAdjacentHTML('beforeend',lineRow({n:'',chi:'suocero',imp:0}));calc()};
 $('iLines').addEventListener('click',e=>{if(e.target.closest('.lX')){e.target.closest('tr').remove();calc()}});
 async function save(){const b=readForm();if(!(b.tot>0)){(b.reg==='tim'?$('iFix'):$('iTot')).focus();toast('Inserisci l\'importo');return null}
-  const btns=[$('iSave'),$('iNext')];btns.forEach(x=>x.disabled=true);const r=await put(b);btns.forEach(x=>x.disabled=false);return r}
-$('iSave').onclick=async()=>{const was=editId;if(await save()){$('dB').close();toast(was?'Voce aggiornata':'Bolletta aggiunta')}};
+  const N=(!editId&&cat(b.cat).freq==='mese')?+$('iN').value:1;
+  const btns=[$('iSave'),$('iNext')];btns.forEach(x=>x.disabled=true);
+  const r=N>1?await putMany(splitBill(b,N)).then(a=>a&&a.sort((x,y)=>x.periodo.localeCompare(y.periodo)).pop()):await put(b);
+  btns.forEach(x=>x.disabled=false);return r}
+$('iSave').onclick=async()=>{const was=editId;if(await save()){$('dB').close();toast(was?'Voce aggiornata':(+$('iN').value>1&&!$('perN').hidden?'Bolletta aggiunta e divisa in '+$('iN').value+' mesi':'Bolletta aggiunta'))}};
 $('iNext').onclick=async()=>{const r=await save();if(!r)return;toast('Salvata '+per(r));editId=null;const p=ymAdd(r.periodo,1);$('iMm').value=p.slice(5);$('iMy').value=p.slice(0,4);$('iPag').value='';calc()};
 $('iDup2').onclick=()=>{const b=S.bills.find(x=>x.id===editId);editId=null;$('dBt').textContent='Nuova bolletta (copia)';$('iDel').hidden=true;$('iDup2').hidden=true;
   if(b.periodo&&b.periodo.length===7){const p=ymAdd(b.periodo,1);$('iMm').value=p.slice(5);$('iMy').value=p.slice(0,4)}$('iPag').value='';$('iEst').checked=false;$('iEst').parentElement.hidden=true;calc()};
 $('iDel').onclick=async()=>{const x=$('iDel');if(!x.dataset.c){x.dataset.c=1;x.textContent='Conferma eliminazione';return}
   const old=S.bills.find(b=>b.id===editId);$('dB').close();if(await del(editId))toast('Voce eliminata',()=>put({...old,id:undefined}))};
+$('iGrpDel').onclick=async()=>{const x=$('iGrpDel');if(!x.dataset.c){x.dataset.c=1;x.textContent='Conferma: elimina tutti i mesi';return}
+  const o=S.bills.find(b=>b.id===editId),gg=grp(o.gruppo).map(b=>({...b,id:undefined}));$('dB').close();
+  if(await delGroup(o.gruppo))toast('Bolletta eliminata ('+gg.length+' mesi)',()=>putMany(gg))};
 $('bNew').onclick=()=>openBill(null);
 
 /* ---------- bonifico ---------- */
